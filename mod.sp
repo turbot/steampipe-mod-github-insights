@@ -1,22 +1,22 @@
-mod "azure_insights" {
+mod "github_insights" {
   # hub metadata
-  title         = "Azure Insights"
-  description   = "Create dashboards and reports for your Azure resources using Steampipe."
+  title         = "GitHub Insights"
+  description   = "Create dashboards and reports for your GitHub resources using Steampipe."
   color         = "#0089D6"
   documentation = file("./docs/index.md")
-  icon          = "/images/mods/turbot/azure-insights.svg"
-  categories    = ["azure", "dashboard", "public cloud"]
+  icon          = "/images/mods/turbot/github-insights.svg"
+  categories    = ["github", "dashboard", "public cloud"]
 
   opengraph {
-    title       = "Steampipe Mod for Azure Insights"
-    description = "Create dashboards and reports for your Azure resources using Steampipe."
-    image       = "/images/mods/turbot/azure-insights-social-graphic.png"
+    title       = "Steampipe Mod for GitHub Insights"
+    description = "Create dashboards and reports for your GitHub resources using Steampipe."
+    image       = "/images/mods/turbot/github-insights-social-graphic.png"
   }
 
   require {
-    steampipe = "0.13.1"
-    plugin "azure" {
-      version = "0.23.2"
+    steampipe = "0.16.4"
+    plugin "github" {
+      version = "0.22.1"
     }
   }
 }
