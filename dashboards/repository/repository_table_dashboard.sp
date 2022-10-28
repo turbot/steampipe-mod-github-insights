@@ -45,7 +45,7 @@ dashboard "github_repository_dashboard" {
     width = 6
 
     chart {
-      title = "Public: PR Review"
+      title = "PR Review (Public)"
       type  = "donut"
       width = 4
       sql   = query.github_repository_public_pr_disabled_status.sql
@@ -60,7 +60,7 @@ dashboard "github_repository_dashboard" {
       }
     }
     chart {
-      title = "Private: PR Review"
+      title = "PR Review (Private)"
       type  = "donut"
       width = 4
       sql   = query.github_repository_private_pr_disabled_status.sql
@@ -117,7 +117,7 @@ query "github_repository_public_pr_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      'Public: PR Review Disabled' as label,
+      'PR Review Disabled (Public)' as label,
       case
         when b.required_pull_request_reviews is not null then 'ok'
         else 'alert'
@@ -140,7 +140,7 @@ query "github_repository_private_pr_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      'Private: PR Review Disabled' as label,
+      'PR Review Disabled (Private)' as label,
       case
         when b.required_pull_request_reviews is not null then 'ok'
         else 'alert'
@@ -193,7 +193,7 @@ query "github_repository_less_than_two_admins_count" {
 query "github_repository_public_pr_disabled_status" {
   sql = <<-EOQ
     select
-      count(*),
+      count(*) as table_count,
       case
         when b.required_pull_request_reviews is not null then 'enabled'
         else 'disabled'
@@ -215,7 +215,7 @@ query "github_repository_public_pr_disabled_status" {
 query "github_repository_private_pr_disabled_status" {
   sql = <<-EOQ
     select
-      count(*),
+      count(*) as table_count,
       case
         when b.required_pull_request_reviews is not null then 'enabled'
         else 'disabled'
@@ -251,7 +251,7 @@ query "github_repository_less_than_two_admins_status" {
         full_name
     )
     select
-      count(*),
+      count(*) as table_count,
       case
         when has_at_least_two_admins then '>= 2 admins'
         else '< 2 admins'
