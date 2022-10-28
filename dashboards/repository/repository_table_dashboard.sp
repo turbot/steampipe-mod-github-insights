@@ -110,20 +110,29 @@ query "github_repository_private_pr_disabled_count" {
 
 query "github_repository_less_than_two_admins_count" {
   sql = <<-EOQ
+    with admin_repositories as (
+      select
+        case
+          when count(c -> 'permissions' ->> 'admin') >= 2 then true
+          else false
+        end as has_at_least_two_admins
+      from
+        github_my_repository,
+        jsonb_array_elements(collaborators) as c
+      where
+        (c -> 'permissions' ->> 'admin')::bool
+      group by
+        full_name
+    )
     select
       count(*) as value,
-      'Less Than Tow Admins' as label,
+      'Less Than Two Admins' as label,
       case
-        when count(c -> 'permissions' ->> 'admin') >= 2 then 'ok'
+        when has_at_least_two_admins then 'ok'
         else 'alert'
       end as type
     from
-      github_my_repository,
-      jsonb_array_elements(collaborators) as c
-    where
-      (c -> 'permissions' ->> 'admin')::bool
-    group by
-      html_url,
-      full_name;
+      admin_repositories
+    group by has_at_least_two_admins;
   EOQ
 }
