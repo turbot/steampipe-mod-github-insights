@@ -40,7 +40,7 @@ dashboard "github_repository_dashboard" {
 
   }
 
-    container {
+  container {
     title = "Assessments"
     width = 6
 
@@ -91,6 +91,28 @@ dashboard "github_repository_dashboard" {
     }
   }
 
+  container {
+    title = "Analysis"
+
+    chart {
+      title = "Repositories by Visibility"
+      type  = "column"
+      width = 4
+      sql   = query.github_repository_by_visibility.sql
+    }
+    chart {
+      title = "Repositories by Licence Key"
+      type  = "column"
+      width = 4
+      sql   = query.github_repository_by_license_key.sql
+    }
+    chart {
+      title = "Repositories by Age"
+      type  = "column"
+      width = 4
+      sql   = query.github_repository_by_age.sql
+    }
+  }
 }
 
 # Card Queries
@@ -260,5 +282,46 @@ query "github_repository_less_than_two_admins_status" {
       admin_repositories
     group by has_at_least_two_admins;
 
+  EOQ
+}
+
+# Analysis Queries
+
+query "github_repository_by_visibility" {
+  sql = <<-EOQ
+    select
+      visibility as "Visibility",
+      count(*) as "repositories"
+    from
+      github_my_repository
+    group by visibility
+    order by visibility;
+  EOQ
+}
+
+query "github_repository_by_license_key" {
+  sql = <<-EOQ
+    select
+      case
+        when license_key is null then 'none'
+        else license_key
+      end as "Licence Key",
+      count(*) as "repositories"
+    from
+      github_my_repository
+    group by license_key
+    order by license_key;
+  EOQ
+}
+
+query "github_repository_by_age" {
+  sql = <<-EOQ
+    select
+      to_char(created_at,
+          'YYYY-MM') as creation_month,
+      count(*) as "repositories"
+    from
+      github_my_repository
+    group by creation_month;
   EOQ
 }
