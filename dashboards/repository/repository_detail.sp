@@ -1,7 +1,7 @@
 dashboard "github_repository_detail" {
 
   title         = "GitHub Repository Detail"
-  // documentation = file("./dashboards/repository/docs/repository_detail.md")
+  documentation = file("./dashboards/repository/docs/repository_detail.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Detail"
