@@ -17,7 +17,35 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_default_branch
+      query = query.github_repository_visibility
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+    card {
+      width = 2
+      query = query.github_repository_status
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+    card {
+      width = 2
+      query = query.github_repository_stargazers
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+    card {
+      width = 2
+      query = query.github_repository_forks
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+    card {
+      width = 2
+      query = query.github_repository_subscribers
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -37,24 +65,19 @@ dashboard "github_repository_detail" {
       }
     }
 
-    table {
-      title = "Branches"
-      width = 9
-      query = query.github_repository_branches
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-      column "commit_url" {
-        display = "none"
-      }
-      column "Commit" {
-        href = "{{.'commit_url'}}"
-      }
-    }
 
   }
 
   container {
+
+    table {
+      title = "Branches"
+      width = 12
+      query = query.github_repository_branches
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
 
     table {
       title = "Open Issues"
@@ -105,11 +128,70 @@ query "github_repository_input" {
   EOQ
 }
 
-query "github_repository_default_branch" {
+query "github_repository_visibility" {
   sql = <<-EOQ
     select
-      'Default Branch' as "label",
-      default_branch as "value"
+      'Visibility' as "label",
+      visibility as "value"
+    from
+      github_my_repository
+    where
+      full_name = $1;
+  EOQ
+
+  param "full_name" {}
+}
+
+query "github_repository_status" {
+  sql = <<-EOQ
+    select
+      'Status' as "label",
+      case
+        when disabled then 'disabled'
+        else 'enabled'
+      end as "value"
+    from
+      github_my_repository
+    where
+      full_name = $1;
+  EOQ
+
+  param "full_name" {}
+}
+
+query "github_repository_stargazers" {
+  sql = <<-EOQ
+    select
+      'Stargazers' as "label",
+      stargazers_count as "value"
+    from
+      github_my_repository
+    where
+      full_name = $1;
+  EOQ
+
+  param "full_name" {}
+}
+
+query "github_repository_forks" {
+  sql = <<-EOQ
+    select
+      'Forks' as "label",
+      forks_count as "value"
+    from
+      github_my_repository
+    where
+      full_name = $1;
+  EOQ
+
+  param "full_name" {}
+}
+
+query "github_repository_subscribers" {
+  sql = <<-EOQ
+    select
+      'Subscribers' as "label",
+      subscribers_count as "value"
     from
       github_my_repository
     where
@@ -127,6 +209,9 @@ query "github_repository_overview" {
       description as "Description",
       clone_url as "HTTP Clone URL",
       git_url as "SSH Clone URL",
+      allow_merge_commit as "Allow Merge Commit",
+      allow_rebase_merge as "Allow Rebase Merge",
+      allow_squash_merge as "Allow Squash Merge",
       created_at as "Creation date",
       updated_at as "Last modified date"
     from
@@ -142,8 +227,6 @@ query "github_repository_branches" {
   sql = <<-EOQ
     select
       name as "Branch Name",
-      commit_sha as "Commit",
-      commit_url,
       protected as "Protected"
     from
       github_branch
