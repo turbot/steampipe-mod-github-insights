@@ -65,6 +65,14 @@ dashboard "github_repository_detail" {
       }
     }
 
+    table {
+      title = "Collaborators"
+      width = 3
+      query = query.github_repository_collaborators
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
 
   }
 
@@ -274,6 +282,37 @@ query "github_repository_open_pull_requests" {
       repository_full_name = $1 and
       state = 'open'
     order by created_at desc;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "github_repository_collaborators" {
+  sql = <<-EOQ
+    with internal_collaborators as (
+      select
+        collaborator.value ->> 0 as "collaborator"
+      from
+        github_my_repository,
+        jsonb_array_elements(collaborator_logins) as collaborator
+      where
+        full_name = $1
+    ), external_collaborators as (
+      select
+        collaborator.value ->> 0 as "collaborator"
+      from
+        github_my_repository,
+        jsonb_array_elements(outside_collaborator_logins) as collaborator
+      where
+        full_name = $1
+    )
+
+    select collaborator as "Login", 'internal' as "Type" from internal_collaborators
+    except
+    select collaborator as "Login", 'internal' as "Type" from external_collaborators
+    union
+    select collaborator as "Login", 'external' as "Type" from external_collaborators;
+
   EOQ
 
   param "repository_full_name" {}
