@@ -217,9 +217,18 @@ query "github_repository_overview" {
       description as "Description",
       clone_url as "HTTP Clone URL",
       git_url as "SSH Clone URL",
-      allow_merge_commit as "Allow Merge Commit",
-      allow_rebase_merge as "Allow Rebase Merge",
-      allow_squash_merge as "Allow Squash Merge",
+      case
+        when allow_merge_commit then 'Enabled'
+        else 'Disabled'
+      end as "Allow Merge Commit",
+      case
+        when allow_rebase_merge then 'Enabled'
+        else 'Disabled'
+      end as "Allow Rebase Merge",
+      case
+        when allow_squash_merge then 'Enabled'
+        else 'Disabled'
+      end as "Allow Squash Merge",
       created_at as "Creation date",
       updated_at as "Last modified date"
     from
