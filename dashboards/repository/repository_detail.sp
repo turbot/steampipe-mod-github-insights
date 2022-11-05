@@ -63,6 +63,12 @@ dashboard "github_repository_detail" {
       args = {
         full_name = self.input.repository_full_name.value
       }
+      column "html_url" {
+        display = "none"
+      }
+      column "Repository Name" {
+        href = "{{.'html_url'}}"
+      }
     }
 
     table {
@@ -230,7 +236,8 @@ query "github_repository_overview" {
         else 'Disabled'
       end as "Allow Squash Merge",
       created_at as "Creation date",
-      updated_at as "Last modified date"
+      updated_at as "Last modified date",
+      html_url
     from
       github_my_repository
     where
