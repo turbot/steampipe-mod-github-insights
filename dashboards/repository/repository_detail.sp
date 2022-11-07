@@ -91,6 +91,15 @@ dashboard "github_repository_detail" {
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+      column "repository_full_name" {
+        display = "none"
+      }
+      column "branch_name" {
+        display = "none"
+      }
+      column "Branch Name" {
+        href = "${dashboard.github_branch_detail.url_path}?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.branch_name | @uri}}"
+      }
     }
 
     table {
@@ -251,7 +260,9 @@ query "github_repository_branches" {
   sql = <<-EOQ
     select
       name as "Branch Name",
-      protected as "Protected"
+      protected as "Protected",
+      name as "branch_name",
+      repository_full_name
     from
       github_branch
     where
