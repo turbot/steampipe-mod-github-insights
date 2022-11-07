@@ -80,13 +80,9 @@ dashboard "github_repository_detail" {
       }
     }
 
-  }
-
-  container {
-
     table {
       title = "Branches"
-      width = 12
+      width = 3
       query = query.github_repository_branches
       args = {
         repository_full_name = self.input.repository_full_name.value
@@ -101,6 +97,10 @@ dashboard "github_repository_detail" {
         href = "${dashboard.github_branch_detail.url_path}?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.branch_name | @uri}}"
       }
     }
+
+  }
+
+  container {
 
     table {
       title = "Open Issues"
