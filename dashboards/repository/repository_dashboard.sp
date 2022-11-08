@@ -1,6 +1,6 @@
 dashboard "github_repository_dashboard" {
 
-  title         = "GitHub Repository Dashboard"
+  title = "GitHub Repository Dashboard"
   // documentation = file("./dashboards/repository/docs/repository_dashboard.md")
 
   tags = merge(local.repository_common_tags, {
@@ -12,29 +12,29 @@ dashboard "github_repository_dashboard" {
 
     # Analysis
     card {
-      sql   = query.github_repository_count.sql
+      query = query.github_repository_count
       width = 2
     }
     card {
-      sql   = query.github_repository_public_count.sql
+      query = query.github_repository_public_count
       width = 2
     }
     card {
-      sql   = query.github_repository_private_count.sql
+      query = query.github_repository_private_count
       width = 2
     }
 
     # Assessments
     card {
-      sql = query.github_repository_public_pr_disabled_count.sql
+      query = query.github_repository_public_pr_disabled_count
       width = 2
     }
     card {
-      sql = query.github_repository_private_pr_disabled_count.sql
+      sql   = query.github_repository_private_pr_disabled_count.sql
       width = 2
     }
     card {
-      sql = query.github_repository_less_than_two_admins_count.sql
+      sql   = query.github_repository_less_than_two_admins_count.sql
       width = 2
     }
 
@@ -48,9 +48,9 @@ dashboard "github_repository_dashboard" {
       title = "PR Review (Public)"
       type  = "donut"
       width = 4
-      sql   = query.github_repository_public_pr_disabled_status.sql
+      query = query.github_repository_public_pr_disabled_status
 
-      series "table_count" {
+      series "count" {
         point "enabled" {
           color = "ok"
         }
@@ -63,9 +63,9 @@ dashboard "github_repository_dashboard" {
       title = "PR Review (Private)"
       type  = "donut"
       width = 4
-      sql   = query.github_repository_private_pr_disabled_status.sql
+      query = query.github_repository_private_pr_disabled_status
 
-      series "table_count" {
+      series "count" {
         point "enabled" {
           color = "ok"
         }
@@ -78,9 +78,9 @@ dashboard "github_repository_dashboard" {
       title = "Less Than Two Admins"
       type  = "donut"
       width = 4
-      sql   = query.github_repository_less_than_two_admins_status.sql
+      query = query.github_repository_less_than_two_admins_status
 
-      series "table_count" {
+      series "count" {
         point ">= 2 admins" {
           color = "ok"
         }
@@ -141,8 +141,8 @@ query "github_repository_public_pr_disabled_count" {
       count(*) as value,
       'PR Review Disabled (Public)' as label,
       case
-        when b.required_pull_request_reviews is not null then 'ok'
-        else 'alert'
+        when count(*) > 0 then 'alert'
+        else 'ok'
       end as type
     from
       github_my_repository as r
@@ -151,8 +151,8 @@ query "github_repository_public_pr_disabled_count" {
       r.full_name = b.repository_full_name and
       r.default_branch = b.name
     where
-      visibility = 'public' and
-      r.fork = false
+      visibility = 'public'
+      and b.required_pull_request_reviews is null
     group by
       b.required_pull_request_reviews;
   EOQ
@@ -164,8 +164,8 @@ query "github_repository_private_pr_disabled_count" {
       count(*) as value,
       'PR Review Disabled (Private)' as label,
       case
-        when b.required_pull_request_reviews is not null then 'ok'
-        else 'alert'
+        when count(*) > 0 then 'alert'
+        else 'ok'
       end as type
     from
       github_my_repository as r
@@ -174,8 +174,8 @@ query "github_repository_private_pr_disabled_count" {
       r.full_name = b.repository_full_name and
       r.default_branch = b.name
     where
-      visibility = 'private' and
-      r.fork = false
+      visibility = 'private'
+      and b.required_pull_request_reviews is null
     group by
       b.required_pull_request_reviews;
   EOQ
@@ -201,11 +201,13 @@ query "github_repository_less_than_two_admins_count" {
       count(*) as value,
       'Less Than Two Admins' as label,
       case
-        when has_at_least_two_admins then 'ok'
-        else 'alert'
+        when count(*) > 0 then 'alert'
+        else 'ok'
       end as type
     from
       admin_repositories
+    where
+      not has_at_least_two_admins
     group by has_at_least_two_admins;
   EOQ
 }
@@ -215,11 +217,11 @@ query "github_repository_less_than_two_admins_count" {
 query "github_repository_public_pr_disabled_status" {
   sql = <<-EOQ
     select
-      count(*) as table_count,
       case
         when b.required_pull_request_reviews is not null then 'enabled'
         else 'disabled'
-      end as status
+      end as status,
+      count(*)
     from
       github_my_repository as r
       left join github_branch_protection as b
@@ -227,21 +229,20 @@ query "github_repository_public_pr_disabled_status" {
       r.full_name = b.repository_full_name and
       r.default_branch = b.name
     where
-      visibility = 'public' and
-      r.fork = false
+      visibility = 'public'
     group by
-      b.required_pull_request_reviews;
+      status;
   EOQ
 }
 
 query "github_repository_private_pr_disabled_status" {
   sql = <<-EOQ
     select
-      count(*) as table_count,
       case
         when b.required_pull_request_reviews is not null then 'enabled'
         else 'disabled'
-      end as status
+      end as status,
+      count(*)
     from
       github_my_repository as r
       left join github_branch_protection as b
@@ -249,10 +250,9 @@ query "github_repository_private_pr_disabled_status" {
       r.full_name = b.repository_full_name and
       r.default_branch = b.name
     where
-      visibility = 'private' and
-      r.fork = false
+      visibility = 'private'
     group by
-      b.required_pull_request_reviews;
+      status;
   EOQ
 }
 
@@ -273,14 +273,14 @@ query "github_repository_less_than_two_admins_status" {
         full_name
     )
     select
-      count(*) as table_count,
       case
         when has_at_least_two_admins then '>= 2 admins'
         else '< 2 admins'
-      end as has_at_least_two_admins
+      end as status,
+      count(*)
     from
       admin_repositories
-    group by has_at_least_two_admins;
+    group by status;
 
   EOQ
 }
