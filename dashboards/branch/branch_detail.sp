@@ -9,7 +9,7 @@ dashboard "github_branch_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    sql   = query.github_repository_input.sql
+    query = query.github_repository_input
     width = 4
   }
   input "branch_name" {

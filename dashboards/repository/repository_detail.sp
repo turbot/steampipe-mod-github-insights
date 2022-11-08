@@ -9,7 +9,7 @@ dashboard "github_repository_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    sql   = query.github_repository_input.sql
+    query = query.github_repository_input
     width = 4
   }
 
@@ -60,7 +60,7 @@ dashboard "github_repository_detail" {
       type  = "line"
       width = 3
       query = query.github_repository_overview
-      args = {
+      args  = {
         full_name = self.input.repository_full_name.value
       }
       column "html_url" {
@@ -82,7 +82,7 @@ dashboard "github_repository_detail" {
 
     table {
       title = "Branches"
-      width = 3
+      width = 6
       query = query.github_repository_branches
       args = {
         repository_full_name = self.input.repository_full_name.value
@@ -155,7 +155,7 @@ query "github_repository_visibility" {
   sql = <<-EOQ
     select
       'Visibility' as "label",
-      visibility as "value"
+      initcap(visibility) as "value"
     from
       github_my_repository
     where
@@ -170,8 +170,8 @@ query "github_repository_status" {
     select
       'Status' as "label",
       case
-        when disabled then 'disabled'
-        else 'enabled'
+        when disabled then 'Disabled'
+        else 'Enabled'
       end as "value"
     from
       github_my_repository

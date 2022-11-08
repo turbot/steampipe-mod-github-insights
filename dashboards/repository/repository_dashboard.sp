@@ -30,11 +30,11 @@ dashboard "github_repository_dashboard" {
       width = 2
     }
     card {
-      sql   = query.github_repository_private_pr_disabled_count.sql
+      query = query.github_repository_private_pr_disabled_count
       width = 2
     }
     card {
-      sql   = query.github_repository_less_than_two_admins_count.sql
+      query = query.github_repository_less_than_two_admins_count
       width = 2
     }
 
@@ -98,19 +98,19 @@ dashboard "github_repository_dashboard" {
       title = "Repositories by Visibility"
       type  = "column"
       width = 4
-      sql   = query.github_repository_by_visibility.sql
+      query = query.github_repository_by_visibility
     }
     chart {
       title = "Repositories by Licence Key"
       type  = "column"
       width = 4
-      sql   = query.github_repository_by_license_key.sql
+      query = query.github_repository_by_license_key
     }
     chart {
       title = "Repositories by Age"
       type  = "column"
       width = 4
-      sql   = query.github_repository_by_age.sql
+      query = query.github_repository_by_age
     }
   }
 }
