@@ -22,6 +22,17 @@ dashboard "github_branch_detail" {
   }
 
   container {
+    card {
+      width = 2
+      query = query.github_branch_protection_status
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+        branch_name = self.input.branch_name.value
+      }
+    }
+  }
+
+  container {
 
     table {
       title = "Overview"
@@ -68,8 +79,30 @@ query "github_branch_overview" {
   sql = <<-EOQ
     select
       repository_full_name as "Repository",
-      name as "Branch",
-      protected as "Protected"
+      name as "Branch"
+    from
+      github_branch
+    where
+      repository_full_name = $1 and
+      name = $2;
+  EOQ
+
+  param "repository_full_name" {}
+  param "branch_name" {}
+}
+
+query "github_branch_protection_status" {
+  sql = <<-EOQ
+    select
+      'Protection' as "label",
+      case
+        when protected then 'Enabled'
+        else 'Disabled'
+      end as "value",
+      case
+        when protected then 'ok'
+        else 'alert'
+      end as "type"
     from
       github_branch
     where
