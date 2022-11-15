@@ -98,6 +98,21 @@ dashboard "github_organization_detail" {
         login = self.input.organization_login.value
       }
     }
+
+    table {
+      title = "Members"
+      width = 3
+      query = query.github_organization_members
+      args  = {
+        login = self.input.organization_login.value
+      }
+      column "html_url" {
+        display = "none"
+      }
+      column "Login" {
+        href = "{{.'html_url'}}"
+      }
+    }
   }
 }
 
@@ -272,7 +287,6 @@ query "github_organization_social" {
       following as "Following",
       twitter_username as "Twitter Username",
       blog as "Blog",
-      url as "Url",
       email as "Email"
     from
       github_my_organization
@@ -283,9 +297,22 @@ query "github_organization_social" {
   param "login" {}
 }
 
+query "github_organization_members" {
+  sql = <<-EOQ
+    select
+      m.value ->> 'login' as "Login",
+      m.value ->> 'html_url' as "html_url"
+    from
+      github_my_organization as o,
+      jsonb_array_elements(members) as m
+    where
+      o.login = $1
+    order by m.value ->> 'login';
+  EOQ
+
+  param "login" {}
+}
+
 
 // TODO:
-
-// table: member_logins / members
-
 // table: repositories
