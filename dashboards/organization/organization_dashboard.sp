@@ -121,32 +121,40 @@ query "github_organization_two_factor_requirement_disabled_count" {
 }
 query "github_organization_less_than_two_admins_count" {
   sql = <<-EOQ
-    with admin_organizartions as (
+
+    with organizations_admins as (
       select
+        o.login as organization,
+        count(1) as admins,
         case
-          when count(m.login) >= 2 then true
+          when count(1) >= 2 then true
           else false
-        end as has_at_least_two_admins
+        end as at_least_two_admins
       from
+        github_my_organization o
+      join
         github_organization_member m
-        join github_my_organization o on m.organization = o.login
-      where
-        role = 'admin'
+      on
+        m.organization = o.login and role = 'ADMIN'
       group by
-        m.organization
+        o.login
     )
+
     select
-      count(*) as value,
+      count as value,
       'Less Than Two Admins' as label,
       case
-        when count(*) > 0 then 'alert'
+        when count > 0 then 'alert'
         else 'ok'
       end as type
-    from
-      admin_organizartions
-    where
-      not has_at_least_two_admins
-    group by has_at_least_two_admins;
+    from (
+      select coalesce((
+        select count(*)
+        from organizations_admins
+        where not at_least_two_admins
+        group by at_least_two_admins
+      ),0) as count
+    ) as less_then_two_admins
   EOQ
 }
 
@@ -179,7 +187,7 @@ query "github_organization_less_than_two_admins_status" {
         github_organization_member m
         join github_my_organization o on m.organization = o.login
       where
-        role = 'admin'
+        role = 'ADMIN'
       group by
         m.organization
     )
