@@ -17,7 +17,7 @@ dashboard "github_organization_detail" {
   container {
 
     card {
-      query = query.github_organization_collaborators_count
+      query = query.github_organization_members_count
       width = 2
       args  = {
         login = self.input.organization_login.value
@@ -118,9 +118,9 @@ dashboard "github_organization_detail" {
 
 # Card Queries
 
-query "github_organization_collaborators_count" {
+query "github_organization_members_count" {
   sql = <<-EOQ
-    select collaborators as "Collaborators" from github_my_organization where login = $1;
+    select jsonb_array_length(members) as "Members" from github_my_organization where login = $1;
   EOQ
 
   param "login" {}
@@ -268,8 +268,8 @@ query "github_organization_permissions" {
       case
         when members_can_fork_private_repos then 'Enabled'
         else 'Disabled'
-      end as "Members Can Fork_Private Repos",
-      members_allowed_repository_creation_type as "Repository types a non-admin members can create",
+      end as "Members Can Fork Private Repos",
+      members_allowed_repository_creation_type as "Repository Types A Non-Admin Members Can Create",
       default_repo_permission as "Default Repo Permission"
     from
       github_my_organization
@@ -300,19 +300,24 @@ query "github_organization_social" {
 query "github_organization_members" {
   sql = <<-EOQ
     select
-      m.value ->> 'login' as "Login",
+      om.login as "Login",
+      initcap(om.role) as "Role",
       m.value ->> 'html_url' as "html_url"
     from
-      github_my_organization as o,
-      jsonb_array_elements(members) as m
+      github_my_organization as o
+    join
+      github_organization_member om
+    on
+      om.organization = o.login
+    join
+      jsonb_array_elements(o.members) as m
+    on
+      om.login = m.value ->> 'login'
     where
       o.login = $1
-    order by m.value ->> 'login';
+    order by
+      om.role, upper(om.login);
   EOQ
 
   param "login" {}
 }
-
-
-// TODO:
-// table: repositories
