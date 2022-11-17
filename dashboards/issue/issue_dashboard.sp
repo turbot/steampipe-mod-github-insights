@@ -23,6 +23,13 @@ dashboard "github_issue_dashboard" {
         repository_full_name = self.input.repository_full_name.value
       }
     }
+    card {
+      query = query.github_issue_open_count
+      width = 2
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
 
     # Assessment
     card {
@@ -45,6 +52,16 @@ dashboard "github_issue_dashboard" {
     title = "Analysis"
 
     chart {
+      title = "Issues By Author Association To The Repo"
+      type  = "column"
+      width = 4
+      query = query.github_issue_by_author_association
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
+
+    chart {
       title = "Issues By Age"
       type  = "column"
       width = 4
@@ -61,6 +78,13 @@ dashboard "github_issue_dashboard" {
 query "github_issue_count" {
   sql = <<-EOQ
     select count(*) as "Issues" from github_issue where repository_full_name = $1;
+  EOQ
+
+  param "repository_full_name" {}
+}
+query "github_issue_open_count" {
+  sql = <<-EOQ
+    select count(*) as "Open Issues" from github_issue where repository_full_name = $1 and state = 'open';
   EOQ
 
   param "repository_full_name" {}
@@ -107,6 +131,22 @@ query "github_issue_open_unassigned_count" {
 }
 
 # Analysis Queries
+
+query "github_issue_by_author_association" {
+  sql = <<-EOQ
+    select
+      initcap(author_association) as "Association",
+      count(*) as "issues"
+    from
+      github_issue
+    where
+      repository_full_name = $1
+    group by
+      author_association;
+  EOQ
+
+  param "repository_full_name" {}
+}
 
 query "github_issue_by_age" {
   sql = <<-EOQ
