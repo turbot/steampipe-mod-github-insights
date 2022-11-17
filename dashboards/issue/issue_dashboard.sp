@@ -40,6 +40,20 @@ dashboard "github_issue_dashboard" {
       }
     }
   }
+
+  container {
+    title = "Analysis"
+
+    chart {
+      title = "Issues By Age"
+      type  = "column"
+      width = 4
+      query = query.github_issue_by_age
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
+  }
 }
 
 # Card Queries
@@ -87,6 +101,25 @@ query "github_issue_open_unassigned_count" {
       repository_full_name = $1
       and jsonb_array_length(assignee_logins) = 0
       and state = 'open';
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+# Analysis Queries
+
+query "github_issue_by_age" {
+  sql = <<-EOQ
+    select
+      to_char(created_at,
+          'YYYY-MM') as creation_month,
+      count(*) as "issues"
+    from
+      github_issue
+    where
+      repository_full_name = $1
+    group by
+      creation_month;
   EOQ
 
   param "repository_full_name" {}
