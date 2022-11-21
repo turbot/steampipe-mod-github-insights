@@ -101,7 +101,7 @@ dashboard "github_repository_dashboard" {
       query = query.github_repository_by_visibility
     }
     chart {
-      title = "Repositories by Licence Key"
+      title = "Repositories by License Key"
       type  = "column"
       width = 4
       query = query.github_repository_by_license_key
@@ -305,7 +305,7 @@ query "github_repository_by_license_key" {
       case
         when license_key is null then 'none'
         else license_key
-      end as "Licence Key",
+      end as "License Key",
       count(*) as "repositories"
     from
       github_my_repository

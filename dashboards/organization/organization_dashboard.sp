@@ -1,7 +1,7 @@
 dashboard "github_organization_dashboard" {
 
   title = "GitHub Organization Dashboard"
-  // documentation = file("./dashboards/organization/docs/organization_dashboard.md")
+  documentation = file("./dashboards/organization/docs/organization_dashboard.md")
 
   tags = merge(local.organization_common_tags, {
     type = "Dashboard"

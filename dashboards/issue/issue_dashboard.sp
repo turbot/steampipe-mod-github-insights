@@ -1,7 +1,7 @@
 dashboard "github_issue_dashboard" {
 
   title = "GitHub Issue Dashboard"
-  // documentation = file("./dashboards/issue/docs/issue_dashboard.md")
+  documentation = file("./dashboards/issue/docs/issue_dashboard.md")
 
   tags = merge(local.issue_common_tags, {
     type = "Dashboard"
