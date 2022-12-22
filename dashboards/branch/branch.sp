@@ -3,3 +3,9 @@ locals {
     service = "GitHub/Branch"
   }
 }
+
+category "branch" {
+  title = "Branch"
+  color = local.developer_tools_color
+  icon  = "integration-instructions"
+}

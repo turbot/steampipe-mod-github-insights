@@ -53,6 +53,69 @@ dashboard "github_repository_detail" {
 
   }
 
+  with "branches" {
+    query = query.repository_branches
+    args  = [self.input.repository_full_name.value]
+  }
+
+  with "collaborators" {
+    query = query.repository_collaborator
+    args  = [self.input.repository_full_name.value]
+  }
+
+  container {
+    graph {
+      title     = "Relationships"
+      type      = "graph"
+      direction = "TD"
+
+      node {
+        base = node.repository
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      node {
+        base = node.branch
+        args = {
+          branch_names          = with.branches.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      node {
+        base = node.user
+        args = {
+          logins = with.collaborators.rows[*].login
+        }
+      }
+
+      edge {
+        base = edge.repository_to_branch
+        args = {
+          branch_names          = with.branches.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.repository_to_external_collaborators
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.repository_to_internal_collaborators
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+    }
+  }
+
   container {
 
     table {
@@ -60,7 +123,7 @@ dashboard "github_repository_detail" {
       type  = "line"
       width = 3
       query = query.github_repository_overview
-      args  = {
+      args = {
         full_name = self.input.repository_full_name.value
       }
       column "html_url" {
@@ -118,6 +181,7 @@ dashboard "github_repository_detail" {
     }
 
   }
+
   container {
 
     table {
@@ -344,3 +408,30 @@ query "github_repository_collaborators" {
 
   param "repository_full_name" {}
 }
+
+query "repository_branches" {
+  sql = <<-EOQ
+    select
+      name as branch_name
+    from
+      github_branch
+    where
+      repository_full_name = $1
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "repository_collaborator" {
+  sql = <<-EOQ
+    select
+      jsonb_array_elements_text(collaborator_logins) as login
+    from
+      github_my_repository
+    where
+      full_name = $1
+  EOQ
+
+  param "repository_full_name" {}
+}
+
