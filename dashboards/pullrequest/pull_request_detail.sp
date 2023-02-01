@@ -8,7 +8,7 @@ dashboard "pull_request_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.repository_input
+    query = query.github_repository_input
     width = 4
   }
 
@@ -60,20 +60,20 @@ dashboard "pull_request_detail" {
     }
   }
 
-with "users" {
-  query = query.pull_request_users
-   args = {
-    repository_full_name = self.input.repository_full_name.value
-    pull_request_id      = self.input.pull_request_id.value
-   }
-}
+  with "users" {
+    query = query.pull_request_users
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+      pull_request_id      = self.input.pull_request_id.value
+    }
+  }
 
-with "repositories" {
-  query = query.pull_request_repository
-   args = {
-    repository_full_name = self.input.repository_full_name.value
-   }
-}
+  with "repositories" {
+    query = query.pull_request_repository
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+    }
+  }
 
   container {
     graph {
@@ -106,7 +106,7 @@ with "repositories" {
       edge {
         base = edge.repository_to_pull_request
         args = {
-          repository_full_names =  self.input.repository_full_name.value
+          repository_full_names = self.input.repository_full_name.value
           pull_request_ids      = [self.input.pull_request_id.value]
         }
       }
@@ -119,7 +119,7 @@ with "repositories" {
         }
       }
 
-        edge {
+      edge {
         base = edge.pull_request_to_assignee
         args = {
           repository_full_names = self.input.repository_full_name.value
