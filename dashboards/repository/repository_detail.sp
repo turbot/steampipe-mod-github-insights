@@ -65,9 +65,8 @@ dashboard "github_repository_detail" {
 
   container {
     graph {
-      title     = "Relationships"
-      type      = "graph"
-      direction = "TD"
+      title = "Relationships"
+      type  = "graph"
 
       node {
         base = node.repository
@@ -85,6 +84,13 @@ dashboard "github_repository_detail" {
       }
 
       node {
+        base = node.tag
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      node {
         base = node.user
         args = {
           logins = with.collaborators.rows[*].login
@@ -95,6 +101,13 @@ dashboard "github_repository_detail" {
         base = edge.repository_to_branch
         args = {
           branch_names          = with.branches.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.repository_to_tag
+        args = {
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
@@ -134,26 +147,23 @@ dashboard "github_repository_detail" {
       }
     }
 
-    table {
-      title = "Collaborators"
-      width = 3
-      query = query.github_repository_collaborators
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
+    // table {
+    //   title = "Collaborators"
+    //   width = 3
+    //   query = query.github_repository_collaborators
+    //   args = {
+    //     repository_full_name = self.input.repository_full_name.value
+    //   }
+    // }
 
     table {
-      title = "Branches"
+      title = "Protected Branches"
       width = 6
       query = query.github_repository_branches
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
       column "repository_full_name" {
-        display = "none"
-      }
-      column "branch_name" {
         display = "none"
       }
       column "Branch Name" {
@@ -199,6 +209,101 @@ dashboard "github_repository_detail" {
       }
     }
 
+  }
+
+  container {
+
+    title = "Analysis"
+
+    container {
+
+      chart {
+        title = "Pull Requests by State"
+        type  = "column"
+        width = 4
+        query = query.pull_requests_by_state
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Pull Requests by Author Association"
+        type  = "column"
+        width = 4
+        query = query.pull_requests_by_author_association
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Pull Requests by Author"
+        type  = "column"
+        width = 4
+        query = query.pull_requests_by_author_login
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+    }
+
+    container {
+
+      chart {
+        title = "Issues by State"
+        type  = "column"
+        width = 4
+        query = query.issues_by_state
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Issues by Author Association"
+        type  = "column"
+        width = 4
+        query = query.issues_by_author_association
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Issues by Tag"
+        type  = "column"
+        width = 4
+        query = query.issues_by_tag
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+    }
+
+    container {
+
+      chart {
+        title = "Commits by Author"
+        type  = "column"
+        width = 4
+        query = query.commits_by_author
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Traffic Daily - Last 15 days"
+        type  = "line"
+        width = 6
+
+        query = query.traffic_past_2week
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+    }
   }
 
 }
@@ -325,12 +430,12 @@ query "github_repository_branches" {
     select
       name as "Branch Name",
       protected as "Protected",
-      name as "branch_name",
       repository_full_name
     from
       github_branch
     where
       repository_full_name = $1
+      and protected
     order by name;
   EOQ
 
@@ -378,36 +483,36 @@ query "github_repository_open_pull_requests" {
   param "repository_full_name" {}
 }
 
-query "github_repository_collaborators" {
-  sql = <<-EOQ
-    with internal_collaborators as (
-      select
-        collaborator.value ->> 0 as "collaborator"
-      from
-        github_my_repository,
-        jsonb_array_elements(collaborator_logins) as collaborator
-      where
-        full_name = $1
-    ), external_collaborators as (
-      select
-        collaborator.value ->> 0 as "collaborator"
-      from
-        github_my_repository,
-        jsonb_array_elements(outside_collaborator_logins) as collaborator
-      where
-        full_name = $1
-    )
+// query "github_repository_collaborators" {
+//   sql = <<-EOQ
+//     with internal_collaborators as (
+//       select
+//         collaborator.value ->> 0 as "collaborator"
+//       from
+//         github_my_repository,
+//         jsonb_array_elements(collaborator_logins) as collaborator
+//       where
+//         full_name = $1
+//     ), external_collaborators as (
+//       select
+//         collaborator.value ->> 0 as "collaborator"
+//       from
+//         github_my_repository,
+//         jsonb_array_elements(outside_collaborator_logins) as collaborator
+//       where
+//         full_name = $1
+//     )
 
-    select collaborator as "Login", 'internal' as "Type" from internal_collaborators
-    except
-    select collaborator as "Login", 'internal' as "Type" from external_collaborators
-    union
-    select collaborator as "Login", 'external' as "Type" from external_collaborators;
+//     select collaborator as "Login", 'internal' as "Type" from internal_collaborators
+//     except
+//     select collaborator as "Login", 'internal' as "Type" from external_collaborators
+//     union
+//     select collaborator as "Login", 'external' as "Type" from external_collaborators;
 
-  EOQ
+//   EOQ
 
-  param "repository_full_name" {}
-}
+//   param "repository_full_name" {}
+// }
 
 query "repository_branches" {
   sql = <<-EOQ
@@ -435,3 +540,171 @@ query "repository_collaborator" {
   param "repository_full_name" {}
 }
 
+query "pull_requests_by_state" {
+  sql = <<-EOQ
+    select
+      state as "State",
+      count(r.*) as total
+    from
+      github_pull_request r
+    where
+      repository_full_name = $1
+    group by 
+      state
+    order by 
+      state;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "pull_requests_by_author_association" {
+  sql = <<-EOQ
+    select
+      author_association as "author_association",
+      count(r.*) as total
+    from
+      github_pull_request r
+    where
+      repository_full_name = $1
+    group by 
+      author_association
+    order by 
+      author_association;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "pull_requests_by_author_login" {
+  sql = <<-EOQ
+    select
+      author_login as "author_login",
+      count(r.*) as total
+    from
+      github_pull_request r
+    where
+      repository_full_name = $1
+    group by 
+      author_login
+    order by 
+      total;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "issues_by_state" {
+  sql = <<-EOQ
+    select
+      state as "State",
+      count(i.*) as total
+    from
+      github_issue i
+    where
+      repository_full_name = $1
+    group by 
+      state
+    order by 
+      state;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "issues_by_author_association" {
+  sql = <<-EOQ
+    select
+      author_association as "State",
+      count(i.*) as total
+    from
+      github_issue i
+    where
+      repository_full_name = $1
+    group by 
+      author_association
+    order by 
+      author_association;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "issues_by_tag" {
+  sql = <<-EOQ
+    select
+      t as "Tag",
+      count(i.*) as total
+    from
+      github_issue i,
+      jsonb_object_keys(tags) t
+    where
+      repository_full_name = $1
+    group by 
+      t
+    order by 
+      total;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "commits_by_author" {
+  sql = <<-EOQ
+    select
+      author_login as "Author",
+      count(i.*) as total
+    from
+      github_commit i
+    where
+      repository_full_name = $1
+      and author_login is not null
+    group by 
+      author_login
+    order by 
+      total;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "traffic_past_2week" {
+  sql = <<-EOQ
+    select 
+      to_char(timestamp, 'DD-MONTH'), 
+      count as "Total", 
+      uniques as "Unique" 
+    from 
+      github_traffic_view_daily 
+    where 
+      repository_full_name = $1 
+    order by 
+      timestamp
+  EOQ
+
+  param "repository_full_name" {}
+}
+//      with values as (
+//  select 
+//     timestamp, 
+//     count, 
+//     'Total' as  total
+//   from 
+//     github_traffic_view_daily 
+//   where repository_full_name = $1
+
+//   union all
+
+//  select 
+//     timestamp, 
+//     uniques as count,
+//     'Uniques' as  total
+//   from 
+//     github_traffic_view_daily 
+//   where repository_full_name = $1
+//   order by timestamp
+//  ) select
+//   *
+//   from
+//     values
+//   group by timestamp, total, count

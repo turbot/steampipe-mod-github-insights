@@ -1,6 +1,7 @@
 edge "repository_to_branch" {
   title = "branch"
-  sql   = <<-EOQ
+
+  sql = <<-EOQ
     select
       r.id as from_id,
       b.name as to_id
@@ -18,7 +19,8 @@ edge "repository_to_branch" {
 
 edge "repository_to_pull_request" {
   title = "pull request"
-  sql   = <<-EOQ
+
+  sql = <<-EOQ
     select
       r.id as from_id,
       b.issue_number as to_id
@@ -34,9 +36,28 @@ edge "repository_to_pull_request" {
   param "repository_full_names" {}
 }
 
+edge "repository_to_tag" {
+  title = "tag"
+
+  sql = <<-EOQ
+    select
+      r.id as from_id,
+      t.name as to_id
+    from
+      github_my_repository as r,
+      github_tag t
+    where
+      r.full_name = t.repository_full_name
+      and t.repository_full_name = any($1)
+  EOQ
+
+  param "repository_full_names" {}
+}
+
 edge "repository_to_external_collaborators" {
   title = "external collaborator"
-  sql   = <<-EOQ
+
+  sql = <<-EOQ
     select
       r.id as from_id,
       u.id as to_id
@@ -53,7 +74,8 @@ edge "repository_to_external_collaborators" {
 
 edge "repository_to_internal_collaborators" {
   title = "internal collaborator"
-  sql   = <<-EOQ
+
+  sql = <<-EOQ
     with internal_collaborators as (
       select
         collaborator.value ->> 0 as collaborator,
