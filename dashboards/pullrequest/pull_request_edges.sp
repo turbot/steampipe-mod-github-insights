@@ -35,3 +35,21 @@ edge "pull_request_to_assignee" {
   param "pull_request_ids" {}
   param "repository_full_names" {}
 }
+
+edge "pull_request_to_commit" {
+  title = "commit"
+
+  sql = <<-EOQ
+   select
+      issue_number as from_id,
+      merge_commit_sha as to_id
+    from
+      github_pull_request
+    where
+      issue_number = any($1)
+      and repository_full_name = any($2)
+  EOQ
+
+  param "pull_request_ids" {}
+  param "repository_full_names" {}
+}

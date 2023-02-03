@@ -22,6 +22,7 @@ dashboard "github_repository_detail" {
         full_name = self.input.repository_full_name.value
       }
     }
+
     card {
       width = 2
       query = query.github_repository_status
@@ -29,6 +30,7 @@ dashboard "github_repository_detail" {
         full_name = self.input.repository_full_name.value
       }
     }
+
     card {
       width = 2
       query = query.github_repository_stargazers
@@ -36,6 +38,7 @@ dashboard "github_repository_detail" {
         full_name = self.input.repository_full_name.value
       }
     }
+
     card {
       width = 2
       query = query.github_repository_forks
@@ -43,9 +46,18 @@ dashboard "github_repository_detail" {
         full_name = self.input.repository_full_name.value
       }
     }
+
     card {
       width = 2
       query = query.github_repository_subscribers
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+
+    card {
+      width = 2
+      query = query.github_repository_security
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -147,14 +159,14 @@ dashboard "github_repository_detail" {
       }
     }
 
-    // table {
-    //   title = "Collaborators"
-    //   width = 3
-    //   query = query.github_repository_collaborators
-    //   args = {
-    //     repository_full_name = self.input.repository_full_name.value
-    //   }
-    // }
+    table {
+      title = "License Detail"
+      width = 3
+      query = query.github_repository_license
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
 
     table {
       title = "Protected Branches"
@@ -393,6 +405,25 @@ query "github_repository_subscribers" {
   param "full_name" {}
 }
 
+query "github_repository_security" {
+  sql = <<-EOQ
+    select
+      'Security' as "label",
+        case when security is null then 'Disabled'
+        else 'Enabled'
+      end as "value",
+        case when security is null then 'alert'
+        else 'ok'
+      end as "type"
+    from
+      github_community_profile
+    where
+      repository_full_name = $1;
+  EOQ
+
+  param "full_name" {}
+}
+
 query "github_repository_overview" {
   sql = <<-EOQ
     select
@@ -423,6 +454,20 @@ query "github_repository_overview" {
   EOQ
 
   param "full_name" {}
+}
+
+query "github_repository_license" {
+  sql = <<-EOQ
+    select
+      license ->> 'name' as "License Name",
+      license ->> 'key' as "License Key"
+    from
+      github_community_profile
+    where
+      repository_full_name = $1;
+  EOQ
+
+  param "repository_full_name" {}
 }
 
 query "github_repository_branches" {
@@ -561,7 +606,7 @@ query "pull_requests_by_state" {
 query "pull_requests_by_author_association" {
   sql = <<-EOQ
     select
-      author_association as "author_association",
+      author_association as "author association",
       count(r.*) as total
     from
       github_pull_request r
@@ -579,7 +624,7 @@ query "pull_requests_by_author_association" {
 query "pull_requests_by_author_login" {
   sql = <<-EOQ
     select
-      author_login as "author_login",
+      author_login as "author",
       count(r.*) as total
     from
       github_pull_request r
@@ -606,7 +651,7 @@ query "issues_by_state" {
     group by 
       state
     order by 
-      state;
+      total;
   EOQ
 
   param "repository_full_name" {}
@@ -615,7 +660,7 @@ query "issues_by_state" {
 query "issues_by_author_association" {
   sql = <<-EOQ
     select
-      author_association as "State",
+      author_association as "author association",
       count(i.*) as total
     from
       github_issue i

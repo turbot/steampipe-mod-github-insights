@@ -68,18 +68,18 @@ dashboard "pull_request_detail" {
     }
   }
 
-  with "repositories" {
-    query = query.pull_request_repository
+  with "commits_for_pull_request" {
+    query = query.commits_for_pull_request
     args = {
       repository_full_name = self.input.repository_full_name.value
+      pull_request_id      = self.input.pull_request_id.value
     }
   }
 
   container {
     graph {
-      title     = "Relationships"
-      type      = "graph"
-      direction = "TD"
+      title = "Relationships"
+      type  = "graph"
 
       node {
         base = node.repository
@@ -100,6 +100,22 @@ dashboard "pull_request_detail" {
         base = node.user
         args = {
           logins = with.users.rows[*].login
+        }
+      }
+
+      node {
+        base = node.commit
+        args = {
+          commit_sha           = with.commits_for_pull_request.rows[*].commit_sha
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      edge {
+        base = edge.pull_request_to_commit
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+          pull_request_ids      = [self.input.pull_request_id.value]
         }
       }
 
@@ -379,11 +395,17 @@ query "pull_request_users" {
   param "pull_request_id" {}
 }
 
-query "pull_request_repository" {
+query "commits_for_pull_request" {
   sql = <<-EOQ
     select
-      $1 as repository_full_name
+      merge_commit_sha as commit_sha
+    from
+      github_pull_request
+    where
+      repository_full_name = $1
+      and issue_number = $2
   EOQ
 
   param "repository_full_name" {}
+  param "pull_request_id" {}
 }

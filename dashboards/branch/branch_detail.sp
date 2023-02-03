@@ -12,9 +12,10 @@ dashboard "github_branch_detail" {
     query = query.github_repository_input
     width = 4
   }
+
   input "branch_name" {
     title = "Select a branch:"
-    query   = query.github_branch_input
+    query = query.github_branch_input
     width = 4
     args = {
       repository_full_name = self.input.repository_full_name.value
@@ -27,7 +28,72 @@ dashboard "github_branch_detail" {
       query = query.github_branch_protection_status
       args = {
         repository_full_name = self.input.repository_full_name.value
-        branch_name = self.input.branch_name.value
+        branch_name          = self.input.branch_name.value
+      }
+    }
+  }
+
+  with "prs_for_base_ref_branch" {
+    query = query.prs_for_base_ref_branch
+    args  = [self.input.branch_name.value, self.input.repository_full_name.value]
+  }
+
+  with "prs_for_base_head_branch" {
+    query = query.prs_for_base_head_branch
+    args  = [self.input.branch_name.value, self.input.repository_full_name.value]
+  }
+
+  container {
+    graph {
+      title = "Relationships"
+      type  = "graph"
+
+
+
+      node {
+        base = node.repository
+        args = {
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      node {
+        base = node.pull_request
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+          pull_request_ids     = with.prs_for_base_ref_branch.rows[*].pr_id
+        }
+      }
+
+      node {
+        base = node.pull_request
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+          pull_request_ids     = with.prs_for_base_head_branch.rows[*].pr_id
+        }
+      }
+
+      node {
+        base = node.branch
+        args = {
+          branch_names          = [self.input.branch_name.value]
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      // node {
+      //   base = node.user
+      //   args = {
+      //     logins = with.collaborators.rows[*].login
+      //   }
+      // }
+
+      edge {
+        base = edge.repository_to_branch
+        args = {
+          branch_names          = [self.input.branch_name.value]
+          repository_full_names = [self.input.repository_full_name.value]
+        }
       }
     }
   }
@@ -41,7 +107,7 @@ dashboard "github_branch_detail" {
       query = query.github_branch_overview
       args = {
         repository_full_name = self.input.repository_full_name.value
-        branch_name = self.input.branch_name.value
+        branch_name          = self.input.branch_name.value
       }
     }
 
@@ -51,7 +117,7 @@ dashboard "github_branch_detail" {
       query = query.github_branch_protections
       args = {
         repository_full_name = self.input.repository_full_name.value
-        branch_name = self.input.branch_name.value
+        branch_name          = self.input.branch_name.value
       }
     }
 
@@ -152,6 +218,36 @@ query "github_branch_protections" {
     where
       repository_full_name = $1 and
       name = $2;
+  EOQ
+
+  param "repository_full_name" {}
+  param "branch_name" {}
+}
+
+query "prs_for_base_ref_branch" {
+  sql = <<-EOQ
+    select
+      id as pr_id
+    from
+      github_pull_request
+    where
+      repository_full_name = $1
+      and base_ref = $2
+  EOQ
+
+  param "repository_full_name" {}
+  param "branch_name" {}
+}
+
+query "prs_for_base_head_branch" {
+  sql = <<-EOQ
+    select
+      id as pr_id
+    from
+      github_pull_request
+    where
+      repository_full_name = $1
+      and head_ref = $2
   EOQ
 
   param "repository_full_name" {}
