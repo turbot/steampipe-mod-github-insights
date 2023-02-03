@@ -35,20 +35,24 @@ dashboard "github_branch_detail" {
 
   with "prs_for_base_ref_branch" {
     query = query.prs_for_base_ref_branch
-    args  = [self.input.branch_name.value, self.input.repository_full_name.value]
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+      branch_name          = self.input.branch_name.value
+    }
   }
 
-  with "prs_for_base_head_branch" {
-    query = query.prs_for_base_head_branch
-    args  = [self.input.branch_name.value, self.input.repository_full_name.value]
+  with "prs_for_head_branch" {
+    query = query.prs_for_head_branch
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+      branch_name          = self.input.branch_name.value
+    }
   }
 
   container {
     graph {
       title = "Relationships"
       type  = "graph"
-
-
 
       node {
         base = node.repository
@@ -69,7 +73,7 @@ dashboard "github_branch_detail" {
         base = node.pull_request
         args = {
           repository_full_name = self.input.repository_full_name.value
-          pull_request_ids     = with.prs_for_base_head_branch.rows[*].pr_id
+          pull_request_ids     = with.prs_for_head_branch.rows[*].pr_id
         }
       }
 
@@ -90,6 +94,22 @@ dashboard "github_branch_detail" {
 
       edge {
         base = edge.repository_to_branch
+        args = {
+          branch_names          = [self.input.branch_name.value]
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.pull_request_to_branch
+        args = {
+          branch_names          = [self.input.branch_name.value]
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.branch_to_pull_request
         args = {
           branch_names          = [self.input.branch_name.value]
           repository_full_names = [self.input.repository_full_name.value]
@@ -227,27 +247,29 @@ query "github_branch_protections" {
 query "prs_for_base_ref_branch" {
   sql = <<-EOQ
     select
-      id as pr_id
+      issue_number as pr_id
     from
       github_pull_request
     where
       repository_full_name = $1
       and base_ref = $2
+      and state = 'open'
   EOQ
 
   param "repository_full_name" {}
   param "branch_name" {}
 }
 
-query "prs_for_base_head_branch" {
+query "prs_for_head_branch" {
   sql = <<-EOQ
     select
-      id as pr_id
+      issue_number as pr_id
     from
       github_pull_request
     where
       repository_full_name = $1
       and head_ref = $2
+      and state = 'open'
   EOQ
 
   param "repository_full_name" {}

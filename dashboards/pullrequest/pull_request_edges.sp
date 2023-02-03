@@ -53,3 +53,41 @@ edge "pull_request_to_commit" {
   param "pull_request_ids" {}
   param "repository_full_names" {}
 }
+
+edge "pull_request_to_branch" {
+  title = "base ref"
+
+  sql = <<-EOQ
+   select
+      issue_number as from_id,
+      base_ref as to_id
+    from
+      github_pull_request
+    where
+      repository_full_name = any($1)
+      and base_ref = any($2)
+      and state = 'open'
+  EOQ
+
+  param "repository_full_names" {}
+  param "branch_names" {}
+}
+
+edge "branch_to_pull_request" {
+  title = "pr"
+
+  sql = <<-EOQ
+   select
+      head_ref as from_id,
+      issue_number as to_id
+    from
+      github_pull_request
+    where
+      repository_full_name = any($1)
+      and head_ref = any($2)
+      and state = 'open'
+  EOQ
+
+  param "repository_full_names" {}
+  param "branch_names" {}
+}
