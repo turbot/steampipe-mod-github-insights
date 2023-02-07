@@ -220,7 +220,7 @@ query "github_organization_two_factor_requirement" {
         when two_factor_requirement_enabled then 'Enabled'
         else 'Disabled'
       end as value,
-      '2FA Requirement' as label,
+      'Two-Factor Authentication (2FA)' as label,
       case
         when two_factor_requirement_enabled then 'ok'
         else 'alert'

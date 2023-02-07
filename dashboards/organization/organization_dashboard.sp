@@ -13,21 +13,21 @@ dashboard "github_organization_dashboard" {
     # Analysis
     card {
       query = query.github_organization_count
-      width = 2
+      width = 3
     }
     card {
       query = query.github_unverified_count
-      width = 2
+      width = 3
     }
 
     # Assesment
     card {
       query = query.github_organization_two_factor_requirement_disabled_count
-      width = 2
+      width = 3
     }
     card {
       query = query.github_organization_less_than_two_admins_count
-      width = 2
+      width = 3
     }
 
   }
@@ -39,7 +39,7 @@ dashboard "github_organization_dashboard" {
     chart {
       title = "2FA Requirement"
       type  = "donut"
-      width = 4
+      width = 6
       query = query.github_organization_two_factor_requirement_status
 
       series "count" {
@@ -54,7 +54,7 @@ dashboard "github_organization_dashboard" {
     chart {
       title = "Less Than Two Admins"
       type  = "donut"
-      width = 4
+      width = 6
       query = query.github_organization_less_than_two_admins_status
 
       series "count" {
@@ -109,7 +109,7 @@ query "github_organization_two_factor_requirement_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      '2FA Not Required' as label,
+      '2FA Disabled' as label,
       case
         when count(*) > 0 then 'alert'
         else 'ok'

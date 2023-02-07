@@ -18,14 +18,14 @@ dashboard "github_issue_dashboard" {
 
     card {
       query = query.github_issue_count
-      width = 2
+      width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
     }
     card {
       query = query.github_issue_open_count
-      width = 2
+      width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -34,14 +34,14 @@ dashboard "github_issue_dashboard" {
     # Assessment
     card {
       query = query.github_issue_open_longer_than_30_days_count
-      width = 2
+      width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
     }
     card {
       query = query.github_issue_open_unassigned_count
-      width = 2
+      width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
