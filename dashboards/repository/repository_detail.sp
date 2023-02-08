@@ -1,4 +1,4 @@
-dashboard "github_repository_detail" {
+dashboard "repository_detail" {
 
   title         = "GitHub Repository Detail"
   documentation = file("./dashboards/repository/docs/repository_detail.md")
@@ -9,7 +9,7 @@ dashboard "github_repository_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
@@ -17,7 +17,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_visibility
+      query = query.repository_visibility
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -25,7 +25,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_status
+      query = query.repository_status
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -33,7 +33,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_stargazers
+      query = query.repository_stargazers
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -41,7 +41,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_forks
+      query = query.repository_forks
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -49,7 +49,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_subscribers
+      query = query.repository_subscribers
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -57,7 +57,7 @@ dashboard "github_repository_detail" {
 
     card {
       width = 2
-      query = query.github_repository_security
+      query = query.repository_security
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -65,13 +65,13 @@ dashboard "github_repository_detail" {
 
   }
 
-  with "branches" {
-    query = query.repository_branches
+  with "branches_for_repository" {
+    query = query.branches_for_repository
     args  = [self.input.repository_full_name.value]
   }
 
-  with "collaborators" {
-    query = query.repository_collaborator
+  with "collaborators_for_repository" {
+    query = query.collaborators_for_repository
     args  = [self.input.repository_full_name.value]
   }
 
@@ -90,7 +90,7 @@ dashboard "github_repository_detail" {
       node {
         base = node.branch
         args = {
-          branch_names          = with.branches.rows[*].branch_name
+          branch_names          = with.branches_for_repository.rows[*].branch_name
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
@@ -105,14 +105,14 @@ dashboard "github_repository_detail" {
       node {
         base = node.user
         args = {
-          logins = with.collaborators.rows[*].login
+          logins = with.collaborators_for_repository.rows[*].login
         }
       }
 
       edge {
         base = edge.repository_to_branch
         args = {
-          branch_names          = with.branches.rows[*].branch_name
+          branch_names          = with.branches_for_repository.rows[*].branch_name
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
@@ -147,7 +147,7 @@ dashboard "github_repository_detail" {
       title = "Overview"
       type  = "line"
       width = 3
-      query = query.github_repository_overview
+      query = query.repository_overview
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -162,7 +162,7 @@ dashboard "github_repository_detail" {
     table {
       title = "License Detail"
       width = 3
-      query = query.github_repository_license
+      query = query.repository_license
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -171,7 +171,7 @@ dashboard "github_repository_detail" {
     table {
       title = "Protected Branches"
       width = 6
-      query = query.github_repository_branches
+      query = query.repository_branches
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -179,45 +179,7 @@ dashboard "github_repository_detail" {
         display = "none"
       }
       column "Branch Name" {
-        href = "${dashboard.github_branch_detail.url_path}?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.branch_name | @uri}}"
-      }
-    }
-
-  }
-
-  container {
-
-    table {
-      title = "Open Issues"
-      width = 12
-      query = query.github_repository_open_issues
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-      column "html_url" {
-        display = "none"
-      }
-      column "Issue" {
-        href = "{{.'html_url'}}"
-      }
-    }
-
-  }
-
-  container {
-
-    table {
-      title = "Open Pull Requests"
-      width = 12
-      query = query.github_repository_open_pull_requests
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-      column "html_url" {
-        display = "none"
-      }
-      column "Issue" {
-        href = "{{.'html_url'}}"
+        href = "${dashboard.branch_detail.url_path}?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.branch_name | @uri}}"
       }
     }
 
@@ -318,9 +280,43 @@ dashboard "github_repository_detail" {
     }
   }
 
+  container {
+
+    table {
+      title = "Open Issues (Last 7 days)"
+      width = 12
+      query = query.repository_open_issues
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+      column "html_url" {
+        display = "none"
+      }
+      column "Issue" {
+        href = "{{.'html_url'}}"
+      }
+    }
+
+    table {
+      title = "Open Pull Requests (Last 7 days)"
+      width = 12
+      query = query.repository_open_pull_requests
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+      column "html_url" {
+        display = "none"
+      }
+      column "Issue" {
+        href = "{{.'html_url'}}"
+      }
+    }
+
+  }
+
 }
 
-query "github_repository_input" {
+query "repository_input" {
   sql = <<-EOQ
     select
       full_name as label,
@@ -332,7 +328,7 @@ query "github_repository_input" {
   EOQ
 }
 
-query "github_repository_visibility" {
+query "repository_visibility" {
   sql = <<-EOQ
     select
       'Visibility' as "label",
@@ -346,7 +342,7 @@ query "github_repository_visibility" {
   param "full_name" {}
 }
 
-query "github_repository_status" {
+query "repository_status" {
   sql = <<-EOQ
     select
       'Status' as "label",
@@ -363,7 +359,7 @@ query "github_repository_status" {
   param "full_name" {}
 }
 
-query "github_repository_stargazers" {
+query "repository_stargazers" {
   sql = <<-EOQ
     select
       'Stargazers' as "label",
@@ -377,7 +373,7 @@ query "github_repository_stargazers" {
   param "full_name" {}
 }
 
-query "github_repository_forks" {
+query "repository_forks" {
   sql = <<-EOQ
     select
       'Forks' as "label",
@@ -391,7 +387,7 @@ query "github_repository_forks" {
   param "full_name" {}
 }
 
-query "github_repository_subscribers" {
+query "repository_subscribers" {
   sql = <<-EOQ
     select
       'Subscribers' as "label",
@@ -405,10 +401,10 @@ query "github_repository_subscribers" {
   param "full_name" {}
 }
 
-query "github_repository_security" {
+query "repository_security" {
   sql = <<-EOQ
     select
-      'Security' as "label",
+      'Security Policy' as "label",
         case when security is null then 'Disabled'
         else 'Enabled'
       end as "value",
@@ -424,7 +420,7 @@ query "github_repository_security" {
   param "full_name" {}
 }
 
-query "github_repository_overview" {
+query "repository_overview" {
   sql = <<-EOQ
     select
       full_name as "Repository Name",
@@ -456,7 +452,7 @@ query "github_repository_overview" {
   param "full_name" {}
 }
 
-query "github_repository_license" {
+query "repository_license" {
   sql = <<-EOQ
     select
       license ->> 'name' as "License Name",
@@ -470,7 +466,7 @@ query "github_repository_license" {
   param "repository_full_name" {}
 }
 
-query "github_repository_branches" {
+query "repository_branches" {
   sql = <<-EOQ
     select
       name as "Branch Name",
@@ -487,7 +483,7 @@ query "github_repository_branches" {
   param "repository_full_name" {}
 }
 
-query "github_repository_open_issues" {
+query "repository_open_issues" {
   sql = <<-EOQ
     select
       issue_number as "Issue",
@@ -498,15 +494,16 @@ query "github_repository_open_issues" {
     from
       github_issue
     where
-      repository_full_name = $1 and
-      state = 'open'
+      repository_full_name = $1
+      and state = 'open'
+      and created_at >= (current_date - interval '7' day);
     order by created_at desc;
   EOQ
 
   param "repository_full_name" {}
 }
 
-query "github_repository_open_pull_requests" {
+query "repository_open_pull_requests" {
   sql = <<-EOQ
     select
       issue_number as "Issue",
@@ -520,15 +517,16 @@ query "github_repository_open_pull_requests" {
     from
       github_pull_request
     where
-      repository_full_name = $1 and
-      state = 'open'
+      repository_full_name = $1
+      and state = 'open'
+      and created_at >= (current_date - interval '7' day);
     order by created_at desc;
   EOQ
 
   param "repository_full_name" {}
 }
 
-// query "github_repository_collaborators" {
+// query "repository_collaborators" {
 //   sql = <<-EOQ
 //     with internal_collaborators as (
 //       select
@@ -559,7 +557,7 @@ query "github_repository_open_pull_requests" {
 //   param "repository_full_name" {}
 // }
 
-query "repository_branches" {
+query "branches_for_repository" {
   sql = <<-EOQ
     select
       name as branch_name
@@ -572,7 +570,7 @@ query "repository_branches" {
   param "repository_full_name" {}
 }
 
-query "repository_collaborator" {
+query "collaborators_for_repository" {
   sql = <<-EOQ
     select
       jsonb_array_elements_text(collaborator_logins) as login

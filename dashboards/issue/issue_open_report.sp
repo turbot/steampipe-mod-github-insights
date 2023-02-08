@@ -1,6 +1,6 @@
-dashboard "github_issue_open_report" {
+dashboard "issue_open_report" {
 
-  title = "GitHub Open Issue Report"
+  title         = "GitHub Open Issue Report"
   documentation = file("./dashboards/issue/docs/issue_open_report.md")
 
   tags = merge(local.issue_common_tags, {
@@ -9,15 +9,15 @@ dashboard "github_issue_open_report" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
   container {
     table {
       title = "Open Issues"
-      query = query.github_open_issues
-      args  = {
+      query = query.open_issues
+      args = {
         repository_full_name = self.input.repository_full_name.value
       }
       column "html_url" {
@@ -31,7 +31,7 @@ dashboard "github_issue_open_report" {
 }
 
 // TODO: Format and uncomment commented columns
-query "github_open_issues" {
+query "open_issues" {
   sql = <<-EOQ
     select
       issue_number as "Number",

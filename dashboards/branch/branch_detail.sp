@@ -1,4 +1,4 @@
-dashboard "github_branch_detail" {
+dashboard "branch_detail" {
 
   title         = "GitHub Branch Detail"
   documentation = file("./dashboards/branch/docs/branch_detail.md")
@@ -9,13 +9,13 @@ dashboard "github_branch_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
   input "branch_name" {
     title = "Select a branch:"
-    query = query.github_branch_input
+    query = query.branch_input
     width = 4
     args = {
       repository_full_name = self.input.repository_full_name.value
@@ -25,7 +25,7 @@ dashboard "github_branch_detail" {
   container {
     card {
       width = 2
-      query = query.github_branch_protection_status
+      query = query.branch_protection_status
       args = {
         repository_full_name = self.input.repository_full_name.value
         branch_name          = self.input.branch_name.value
@@ -124,7 +124,7 @@ dashboard "github_branch_detail" {
       title = "Overview"
       type  = "line"
       width = 3
-      query = query.github_branch_overview
+      query = query.branch_overview
       args = {
         repository_full_name = self.input.repository_full_name.value
         branch_name          = self.input.branch_name.value
@@ -134,7 +134,7 @@ dashboard "github_branch_detail" {
     table {
       title = "Protections"
       width = 9
-      query = query.github_branch_protections
+      query = query.branch_protections
       args = {
         repository_full_name = self.input.repository_full_name.value
         branch_name          = self.input.branch_name.value
@@ -145,7 +145,7 @@ dashboard "github_branch_detail" {
 
 }
 
-query "github_branch_input" {
+query "branch_input" {
   sql = <<-EOQ
     select
       name as label,
@@ -161,7 +161,7 @@ query "github_branch_input" {
   param "repository_full_name" {}
 }
 
-query "github_branch_overview" {
+query "branch_overview" {
   sql = <<-EOQ
     select
       repository_full_name as "Repository",
@@ -177,7 +177,7 @@ query "github_branch_overview" {
   param "branch_name" {}
 }
 
-query "github_branch_protection_status" {
+query "branch_protection_status" {
   sql = <<-EOQ
     select
       'Protection' as "label",
@@ -200,7 +200,7 @@ query "github_branch_protection_status" {
   param "branch_name" {}
 }
 
-query "github_branch_protections" {
+query "branch_protections" {
   sql = <<-EOQ
     select
       case

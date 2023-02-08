@@ -1,6 +1,6 @@
 dashboard "pullrequest_dashboard" {
 
-  title = "GitHub Pull Request Dashboard"
+  title         = "GitHub Pull Request Dashboard"
   documentation = file("./dashboards/pullrequest/docs/pull_request_dashboard.md")
 
   tags = merge(local.pull_request_common_tags, {
@@ -9,7 +9,7 @@ dashboard "pullrequest_dashboard" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
@@ -56,7 +56,7 @@ dashboard "pullrequest_dashboard" {
       }
     }
     # card {
-    #   query = query.github_issue_open_unassigned_count
+    #   query = query.issue_open_unassigned_count
     #   width = 2
     #   args = {
     #     repository_full_name = self.input.repository_full_name.value

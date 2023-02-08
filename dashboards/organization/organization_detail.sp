@@ -1,4 +1,4 @@
-dashboard "github_organization_detail" {
+dashboard "organization_detail" {
 
   title         = "GitHub Organization Detail"
   documentation = file("./dashboards/organization/docs/organization_detail.md")
@@ -9,7 +9,7 @@ dashboard "github_organization_detail" {
 
   input "organization_login" {
     title = "Select a organization:"
-    query = query.github_organization_input
+    query = query.organization_input
     width = 4
   }
 
@@ -17,28 +17,28 @@ dashboard "github_organization_detail" {
   container {
 
     card {
-      query = query.github_organization_members_count
+      query = query.organization_members_count
       width = 2
       args = {
         organization_login = self.input.organization_login.value
       }
     }
     card {
-      query = query.github_organization_total_private_repos
+      query = query.organization_total_private_repos
       width = 2
       args = {
         organization_login = self.input.organization_login.value
       }
     }
     card {
-      query = query.github_organization_public_repos
+      query = query.organization_public_repos
       width = 2
       args = {
         organization_login = self.input.organization_login.value
       }
     }
     card {
-      query = query.github_organization_verified
+      query = query.organization_verified
       width = 2
       args = {
         organization_login = self.input.organization_login.value
@@ -46,14 +46,14 @@ dashboard "github_organization_detail" {
     }
     # Assessment
     card {
-      query = query.github_organization_two_factor_requirement
+      query = query.organization_two_factor_requirement
       width = 2
       args = {
         organization_login = self.input.organization_login.value
       }
     }
     card {
-      query = query.github_organization_unused_seats
+      query = query.organization_unused_seats
       width = 2
       args = {
         organization_login = self.input.organization_login.value
@@ -61,17 +61,12 @@ dashboard "github_organization_detail" {
     }
   }
 
-  with "repositories" {
+  with "repositories_for_organization" {
     query = query.repositories_for_organization
     args  = [self.input.organization_login.value]
   }
 
-  with "repositories" {
-    query = query.repositories_for_organization
-    args  = [self.input.organization_login.value]
-  }
-
-  with "users" {
+  with "members_for_organization" {
     query = query.members_for_organization
     args  = [self.input.organization_login.value]
   }
@@ -91,7 +86,7 @@ dashboard "github_organization_detail" {
       node {
         base = node.repository
         args = {
-          repository_full_names = with.repositories.rows[*].full_name
+          repository_full_names = with.repositories_for_organization.rows[*].full_name
         }
       }
 
@@ -105,7 +100,7 @@ dashboard "github_organization_detail" {
       node {
         base = node.user
         args = {
-          logins = with.users.rows[*].member_login
+          logins = with.members_for_organization.rows[*].member_login
         }
       }
 
@@ -138,7 +133,7 @@ dashboard "github_organization_detail" {
       title = "Overview"
       type  = "line"
       width = 3
-      query = query.github_organization_overview
+      query = query.organization_overview
       args = {
         organization_login = self.input.organization_login.value
       }
@@ -154,7 +149,7 @@ dashboard "github_organization_detail" {
       title = "Social"
       type  = "line"
       width = 3
-      query = query.github_organization_social
+      query = query.organization_social
       args = {
         organization_login = self.input.organization_login.value
       }
@@ -164,7 +159,7 @@ dashboard "github_organization_detail" {
       title = "Permissions"
       type  = "line"
       width = 3
-      query = query.github_organization_permissions
+      query = query.organization_permissions
       args = {
         organization_login = self.input.organization_login.value
       }
@@ -173,7 +168,7 @@ dashboard "github_organization_detail" {
     table {
       title = "Members"
       width = 3
-      query = query.github_organization_members
+      query = query.organization_members
       args = {
         organization_login = self.input.organization_login.value
       }
@@ -189,7 +184,7 @@ dashboard "github_organization_detail" {
 
 # Card Queries
 
-query "github_organization_members_count" {
+query "organization_members_count" {
   sql = <<-EOQ
     select jsonb_array_length(members) as "Members" from github_my_organization where login = $1;
   EOQ
@@ -197,7 +192,7 @@ query "github_organization_members_count" {
   param "organization_login" {}
 }
 
-query "github_organization_total_private_repos" {
+query "organization_total_private_repos" {
   sql = <<-EOQ
     select total_private_repos as "Private Repos" from github_my_organization where login = $1;
   EOQ
@@ -205,7 +200,7 @@ query "github_organization_total_private_repos" {
   param "organization_login" {}
 }
 
-query "github_organization_public_repos" {
+query "organization_public_repos" {
   sql = <<-EOQ
     select public_repos as "Public Repos" from github_my_organization where login = $1;
   EOQ
@@ -213,7 +208,7 @@ query "github_organization_public_repos" {
   param "organization_login" {}
 }
 
-query "github_organization_two_factor_requirement" {
+query "organization_two_factor_requirement" {
   sql = <<-EOQ
     select
       case
@@ -234,7 +229,7 @@ query "github_organization_two_factor_requirement" {
   param "organization_login" {}
 }
 
-query "github_organization_verified" {
+query "organization_verified" {
   sql = <<-EOQ
     select
       case
@@ -251,7 +246,7 @@ query "github_organization_verified" {
   param "organization_login" {}
 }
 
-query "github_organization_unused_seats" {
+query "organization_unused_seats" {
   sql = <<-EOQ
     select
       'Unused Seats' as label,
@@ -272,7 +267,7 @@ query "github_organization_unused_seats" {
   param "organization_login" {}
 }
 
-query "github_organization_input" {
+query "organization_input" {
   sql = <<-EOQ
     select
       login as label,
@@ -325,7 +320,7 @@ query "members_for_organization" {
   param "organization_login" {}
 }
 
-query "github_organization_overview" {
+query "organization_overview" {
   sql = <<-EOQ
     select
       name as "Name",
@@ -354,7 +349,7 @@ query "github_organization_overview" {
   param "organization_login" {}
 }
 
-query "github_organization_permissions" {
+query "organization_permissions" {
   sql = <<-EOQ
     select
       case
@@ -392,7 +387,7 @@ query "github_organization_permissions" {
   param "organization_login" {}
 }
 
-query "github_organization_social" {
+query "organization_social" {
   sql = <<-EOQ
     select
       followers as "Followers",
@@ -409,7 +404,7 @@ query "github_organization_social" {
   param "organization_login" {}
 }
 
-query "github_organization_members" {
+query "organization_members" {
   sql = <<-EOQ
     select
       om.login as "Member Login",
@@ -417,10 +412,10 @@ query "github_organization_members" {
       m.value ->> 'html_url' as "URL"
     from
       github_my_organization as o
-    join github_organization_member om
-      on om.organization = o.login
-    join jsonb_array_elements(o.members) as m
-      on om.login = m.value ->> 'login'
+      join github_organization_member om
+        on om.organization = o.login
+      join jsonb_array_elements(o.members) as m
+        on om.login = m.value ->> 'login'
     where
       o.login = $1
     order by

@@ -1,6 +1,6 @@
 dashboard "repository_stargazer_report" {
 
-  title = "GitHub Repository Stargazer Report"
+  title         = "GitHub Repository Stargazer Report"
   documentation = file("./dashboards/issue/docs/issue_open_report.md")
 
   tags = merge(local.repository_common_tags, {
@@ -9,7 +9,7 @@ dashboard "repository_stargazer_report" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
@@ -28,7 +28,7 @@ dashboard "repository_stargazer_report" {
     table {
       title = "Stars"
       query = query.repository_stargazer_report
-      args  = {
+      args = {
         repository_full_name = self.input.repository_full_name.value
       }
       # column "html_url" {

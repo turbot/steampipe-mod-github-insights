@@ -1,4 +1,4 @@
-dashboard "github_repository_dashboard" {
+dashboard "repository_dashboard" {
 
   title = "GitHub Repository Dashboard"
   // documentation = file("./dashboards/repository/docs/repository_dashboard.md")
@@ -12,29 +12,29 @@ dashboard "github_repository_dashboard" {
 
     # Analysis
     card {
-      query = query.github_repository_count
+      query = query.repository_count
       width = 2
     }
     card {
-      query = query.github_repository_public_count
+      query = query.repository_public_count
       width = 2
     }
     card {
-      query = query.github_repository_private_count
+      query = query.repository_private_count
       width = 2
     }
 
     # Assessments
     card {
-      query = query.github_repository_public_pr_disabled_count
+      query = query.repository_public_pr_disabled_count
       width = 2
     }
     card {
-      query = query.github_repository_private_pr_disabled_count
+      query = query.repository_private_pr_disabled_count
       width = 2
     }
     card {
-      query = query.github_repository_less_than_two_admins_count
+      query = query.repository_less_than_two_admins_count
       width = 2
     }
 
@@ -48,7 +48,7 @@ dashboard "github_repository_dashboard" {
       title = "PR Review (Public)"
       type  = "donut"
       width = 4
-      query = query.github_repository_public_pr_disabled_status
+      query = query.repository_public_pr_disabled_status
 
       series "count" {
         point "enabled" {
@@ -63,7 +63,7 @@ dashboard "github_repository_dashboard" {
       title = "PR Review (Private)"
       type  = "donut"
       width = 4
-      query = query.github_repository_private_pr_disabled_status
+      query = query.repository_private_pr_disabled_status
 
       series "count" {
         point "enabled" {
@@ -78,7 +78,7 @@ dashboard "github_repository_dashboard" {
       title = "Less Than Two Admins"
       type  = "donut"
       width = 4
-      query = query.github_repository_less_than_two_admins_status
+      query = query.repository_less_than_two_admins_status
 
       series "count" {
         point ">= 2 admins" {
@@ -98,44 +98,44 @@ dashboard "github_repository_dashboard" {
       title = "Repositories by Visibility"
       type  = "column"
       width = 4
-      query = query.github_repository_by_visibility
+      query = query.repository_by_visibility
     }
     chart {
       title = "Repositories by License Key"
       type  = "column"
       width = 4
-      query = query.github_repository_by_license_key
+      query = query.repository_by_license_key
     }
     chart {
       title = "Repositories by Age"
       type  = "column"
       width = 4
-      query = query.github_repository_by_age
+      query = query.repository_by_age
     }
   }
 }
 
 # Card Queries
 
-query "github_repository_count" {
+query "repository_count" {
   sql = <<-EOQ
     select count(*) as "Repositories" from github_my_repository;
   EOQ
 }
 
-query "github_repository_public_count" {
+query "repository_public_count" {
   sql = <<-EOQ
     select count(*) as "Public" from github_my_repository where visibility = 'public';
   EOQ
 }
 
-query "github_repository_private_count" {
+query "repository_private_count" {
   sql = <<-EOQ
     select count(*) as "Private" from github_my_repository where visibility = 'private';
   EOQ
 }
 
-query "github_repository_public_pr_disabled_count" {
+query "repository_public_pr_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -158,7 +158,7 @@ query "github_repository_public_pr_disabled_count" {
   EOQ
 }
 
-query "github_repository_private_pr_disabled_count" {
+query "repository_private_pr_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -181,7 +181,7 @@ query "github_repository_private_pr_disabled_count" {
   EOQ
 }
 
-query "github_repository_less_than_two_admins_count" {
+query "repository_less_than_two_admins_count" {
   sql = <<-EOQ
     with admin_repositories as (
       select
@@ -214,7 +214,7 @@ query "github_repository_less_than_two_admins_count" {
 
 # Assessments Queries
 
-query "github_repository_public_pr_disabled_status" {
+query "repository_public_pr_disabled_status" {
   sql = <<-EOQ
     select
       case
@@ -235,7 +235,7 @@ query "github_repository_public_pr_disabled_status" {
   EOQ
 }
 
-query "github_repository_private_pr_disabled_status" {
+query "repository_private_pr_disabled_status" {
   sql = <<-EOQ
     select
       case
@@ -256,7 +256,7 @@ query "github_repository_private_pr_disabled_status" {
   EOQ
 }
 
-query "github_repository_less_than_two_admins_status" {
+query "repository_less_than_two_admins_status" {
   sql = <<-EOQ
     with admin_repositories as (
       select
@@ -287,7 +287,7 @@ query "github_repository_less_than_two_admins_status" {
 
 # Analysis Queries
 
-query "github_repository_by_visibility" {
+query "repository_by_visibility" {
   sql = <<-EOQ
     select
       visibility as "Visibility",
@@ -299,7 +299,7 @@ query "github_repository_by_visibility" {
   EOQ
 }
 
-query "github_repository_by_license_key" {
+query "repository_by_license_key" {
   sql = <<-EOQ
     select
       case
@@ -314,7 +314,7 @@ query "github_repository_by_license_key" {
   EOQ
 }
 
-query "github_repository_by_age" {
+query "repository_by_age" {
   sql = <<-EOQ
     select
       to_char(created_at,

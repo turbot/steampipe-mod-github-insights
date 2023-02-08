@@ -8,7 +8,7 @@ dashboard "pull_request_detail" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
@@ -60,8 +60,8 @@ dashboard "pull_request_detail" {
     }
   }
 
-  with "users" {
-    query = query.pull_request_users
+  with "users_for_pull_request" {
+    query = query.users_for_pull_request
     args = {
       repository_full_name = self.input.repository_full_name.value
       pull_request_id      = self.input.pull_request_id.value
@@ -99,7 +99,7 @@ dashboard "pull_request_detail" {
       node {
         base = node.user
         args = {
-          logins = with.users.rows[*].login
+          logins = with.users_for_pull_request.rows[*].login
         }
       }
 
@@ -368,7 +368,7 @@ query "pull_request_reviewers" {
   param "pull_request_id" {}
 }
 
-query "pull_request_users" {
+query "users_for_pull_request" {
   sql = <<-EOQ
     select
       u.login as login

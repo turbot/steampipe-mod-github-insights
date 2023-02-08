@@ -1,6 +1,6 @@
-dashboard "github_organization_dashboard" {
+dashboard "organization_dashboard" {
 
-  title = "GitHub Organization Dashboard"
+  title         = "GitHub Organization Dashboard"
   documentation = file("./dashboards/organization/docs/organization_dashboard.md")
 
   tags = merge(local.organization_common_tags, {
@@ -12,21 +12,21 @@ dashboard "github_organization_dashboard" {
 
     # Analysis
     card {
-      query = query.github_organization_count
+      query = query.organization_count
       width = 3
     }
     card {
-      query = query.github_unverified_count
+      query = query.unverified_count
       width = 3
     }
 
     # Assesment
     card {
-      query = query.github_organization_two_factor_requirement_disabled_count
+      query = query.organization_two_factor_requirement_disabled_count
       width = 3
     }
     card {
-      query = query.github_organization_less_than_two_admins_count
+      query = query.organization_less_than_two_admins_count
       width = 3
     }
 
@@ -40,7 +40,7 @@ dashboard "github_organization_dashboard" {
       title = "2FA Requirement"
       type  = "donut"
       width = 6
-      query = query.github_organization_two_factor_requirement_status
+      query = query.organization_two_factor_requirement_status
 
       series "count" {
         point "Enabled" {
@@ -55,7 +55,7 @@ dashboard "github_organization_dashboard" {
       title = "Less Than Two Admins"
       type  = "donut"
       width = 6
-      query = query.github_organization_less_than_two_admins_status
+      query = query.organization_less_than_two_admins_status
 
       series "count" {
         point ">= 2 admins" {
@@ -75,19 +75,19 @@ dashboard "github_organization_dashboard" {
       title = "Organizations by Plan Type"
       type  = "column"
       width = 4
-      query = query.github_organization_by_plan
+      query = query.organization_by_plan
     }
     chart {
       title = "Organizations by Number of Followers"
       type  = "column"
       width = 4
-      query = query.github_organization_by_number_of_followers
+      query = query.organization_by_number_of_followers
     }
     chart {
       title = "Organizations by Number of Members"
       type  = "column"
       width = 4
-      query = query.github_organization_by_number_of_members
+      query = query.organization_by_number_of_members
     }
   }
 
@@ -95,17 +95,17 @@ dashboard "github_organization_dashboard" {
 
 # Card Queries
 
-query "github_organization_count" {
+query "organization_count" {
   sql = <<-EOQ
     select count(*) as "Organizations" from github_my_organization;
   EOQ
 }
-query "github_unverified_count" {
+query "unverified_count" {
   sql = <<-EOQ
     select count(*) as "Domain Not Verified" from github_my_organization where not is_verified;
   EOQ
 }
-query "github_organization_two_factor_requirement_disabled_count" {
+query "organization_two_factor_requirement_disabled_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -119,7 +119,7 @@ query "github_organization_two_factor_requirement_disabled_count" {
     where not two_factor_requirement_enabled;
   EOQ
 }
-query "github_organization_less_than_two_admins_count" {
+query "organization_less_than_two_admins_count" {
   sql = <<-EOQ
 
     with organizations_admins as (
@@ -160,7 +160,7 @@ query "github_organization_less_than_two_admins_count" {
 
 # Assessments Queries
 
-query "github_organization_two_factor_requirement_status" {
+query "organization_two_factor_requirement_status" {
   sql = <<-EOQ
     select
       case
@@ -175,7 +175,7 @@ query "github_organization_two_factor_requirement_status" {
   EOQ
 }
 
-query "github_organization_less_than_two_admins_status" {
+query "organization_less_than_two_admins_status" {
   sql = <<-EOQ
     with admin_organizartions as (
       select
@@ -205,7 +205,7 @@ query "github_organization_less_than_two_admins_status" {
 
 # Analysis Queries
 
-query "github_organization_by_plan" {
+query "organization_by_plan" {
   sql = <<-EOQ
     select
       plan_name as "Plan",
@@ -216,7 +216,7 @@ query "github_organization_by_plan" {
     order by plan_name;
   EOQ
 }
-query "github_organization_by_number_of_followers" {
+query "organization_by_number_of_followers" {
   sql = <<-EOQ
     select
       login,
@@ -226,7 +226,7 @@ query "github_organization_by_number_of_followers" {
     order by login;
   EOQ
 }
-query "github_organization_by_number_of_members" {
+query "organization_by_number_of_members" {
   sql = <<-EOQ
     select
       login,

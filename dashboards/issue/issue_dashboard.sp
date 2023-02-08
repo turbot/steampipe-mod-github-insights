@@ -1,6 +1,6 @@
-dashboard "github_issue_dashboard" {
+dashboard "issue_dashboard" {
 
-  title = "GitHub Issue Dashboard"
+  title         = "GitHub Issue Dashboard"
   documentation = file("./dashboards/issue/docs/issue_dashboard.md")
 
   tags = merge(local.issue_common_tags, {
@@ -9,7 +9,7 @@ dashboard "github_issue_dashboard" {
 
   input "repository_full_name" {
     title = "Select a repository:"
-    query = query.github_repository_input
+    query = query.repository_input
     width = 4
   }
 
@@ -17,14 +17,14 @@ dashboard "github_issue_dashboard" {
   container {
 
     card {
-      query = query.github_issue_count
+      query = query.issue_count
       width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
     }
     card {
-      query = query.github_issue_open_count
+      query = query.issue_open_count
       width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
@@ -33,14 +33,14 @@ dashboard "github_issue_dashboard" {
 
     # Assessment
     card {
-      query = query.github_issue_open_longer_than_30_days_count
+      query = query.issue_open_longer_than_30_days_count
       width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
     }
     card {
-      query = query.github_issue_open_unassigned_count
+      query = query.issue_open_unassigned_count
       width = 3
       args = {
         repository_full_name = self.input.repository_full_name.value
@@ -55,7 +55,7 @@ dashboard "github_issue_dashboard" {
       title = "Issues By Author Association To The Repo"
       type  = "column"
       width = 4
-      query = query.github_issue_by_author_association
+      query = query.issue_by_author_association
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -65,7 +65,7 @@ dashboard "github_issue_dashboard" {
       title = "Issues By Age"
       type  = "column"
       width = 4
-      query = query.github_issue_by_age
+      query = query.issue_by_age
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -75,14 +75,14 @@ dashboard "github_issue_dashboard" {
 
 # Card Queries
 
-query "github_issue_count" {
+query "issue_count" {
   sql = <<-EOQ
     select count(*) as "Issues" from github_issue where repository_full_name = $1;
   EOQ
 
   param "repository_full_name" {}
 }
-query "github_issue_open_count" {
+query "issue_open_count" {
   sql = <<-EOQ
     select count(*) as "Open Issues" from github_issue where repository_full_name = $1 and state = 'open';
   EOQ
@@ -90,7 +90,7 @@ query "github_issue_open_count" {
   param "repository_full_name" {}
 }
 
-query "github_issue_open_longer_than_30_days_count" {
+query "issue_open_longer_than_30_days_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -110,7 +110,7 @@ query "github_issue_open_longer_than_30_days_count" {
   param "repository_full_name" {}
 }
 
-query "github_issue_open_unassigned_count" {
+query "issue_open_unassigned_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -132,7 +132,7 @@ query "github_issue_open_unassigned_count" {
 
 # Analysis Queries
 
-query "github_issue_by_author_association" {
+query "issue_by_author_association" {
   sql = <<-EOQ
     select
       initcap(author_association) as "Association",
@@ -148,7 +148,7 @@ query "github_issue_by_author_association" {
   param "repository_full_name" {}
 }
 
-query "github_issue_by_age" {
+query "issue_by_age" {
   sql = <<-EOQ
     select
       to_char(created_at,
