@@ -3,7 +3,7 @@ edge "repository_to_branch" {
 
   sql = <<-EOQ
     select
-      r.id as from_id,
+      r.full_name as from_id,
       b.name as to_id
     from
       github_branch as b
@@ -22,7 +22,7 @@ edge "repository_to_pull_request" {
 
   sql = <<-EOQ
     select
-      r.id as from_id,
+      r.full_name as from_id,
       b.issue_number as to_id
     from
       github_pull_request as b
@@ -41,7 +41,7 @@ edge "repository_to_tag" {
 
   sql = <<-EOQ
     select
-      r.id as from_id,
+      r.full_name as from_id,
       t.name as to_id
     from
       github_my_repository as r,
@@ -59,8 +59,8 @@ edge "repository_to_external_collaborators" {
 
   sql = <<-EOQ
     select
-      r.id as from_id,
-      u.id as to_id
+      r.full_name as from_id,
+      u.login as to_id
     from
       github_my_repository as r,
       jsonb_array_elements_text(outside_collaborator_logins) as l
@@ -79,7 +79,7 @@ edge "repository_to_internal_collaborators" {
     with internal_collaborators as (
       select
         collaborator.value ->> 0 as collaborator,
-        r.id as repository_id
+        r.full_name as repository_id
       from
         github_my_repository as r,
         jsonb_array_elements(collaborator_logins) as collaborator
@@ -88,7 +88,7 @@ edge "repository_to_internal_collaborators" {
       except
       select
         collaborator.value ->> 0 as collaborator,
-         r.id as repository_id
+         r.full_name as repository_id
       from
         github_my_repository as r,
         jsonb_array_elements(outside_collaborator_logins) as collaborator
@@ -97,7 +97,7 @@ edge "repository_to_internal_collaborators" {
     )
     select
       repository_id as from_id,
-      u.id as to_id
+      u.login as to_id
     from
       internal_collaborators as c
       left join github_user as u on u.login = c.collaborator

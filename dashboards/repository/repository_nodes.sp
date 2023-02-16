@@ -3,7 +3,7 @@ node "repository" {
 
   sql = <<-EOQ
     select
-      id as id,
+      full_name as id,
       name as title,
       jsonb_build_object(
         'Full Name', full_name,

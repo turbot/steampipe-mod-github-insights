@@ -3,7 +3,7 @@ edge "pull_request_to_reviewer" {
   sql   = <<-EOQ
    select
       r.issue_number as from_id,
-      u.id as to_id
+      u.login as to_id
     from
       github_pull_request as r,
       jsonb_array_elements_text(requested_reviewer_logins) as l
@@ -22,7 +22,7 @@ edge "pull_request_to_assignee" {
   sql   = <<-EOQ
    select
       r.issue_number as from_id,
-      u.id as to_id
+      u.login as to_id
     from
       github_pull_request as r,
       jsonb_array_elements_text(assignee_logins) as l

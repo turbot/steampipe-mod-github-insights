@@ -2,18 +2,67 @@ edge "organization_to_repository" {
   title = "repository"
 
   sql = <<-EOQ
-    select
-      o.id as from_id,
-      r.id as to_id
-    from
-      github_my_organization o,
-      github_my_repository r
+    with non_team_repos as (
+      select
+        full_name
+      from 
+        github_my_repository 
+      where 
+        owner_login = $1
+      except
+      select
+        distinct full_name
+      from
+        github_team_repository
+      where
+        organization = $1
+        and slug = any($2)
+    )select
+      owner_login as from_id,
+      om.full_name as to_id
+    from 
+      github_my_repository om,
+      non_team_repos nm
     where
-      o.login = r.owner_login
-      and o.login = any($1);
+      owner_login = $1
+      and nm.full_name = om.full_name
   EOQ
 
   param "organization_logins" {}
+  param "team_slugs" {}
+}
+
+edge "team_to_repository" {
+  title = "repository"
+
+  sql = <<-EOQ
+    with non_team_repos as (
+      select
+        full_name
+      from 
+        github_my_repository 
+      where 
+        owner_login = $1
+      except
+      select
+        distinct full_name
+      from
+        github_team_repository
+      where
+        organization = $1
+        and slug = any($2)
+    )select
+      slug as from_id,
+      full_name as to_id
+    from
+      github_team_repository
+    where
+      organization = $1
+      and slug = any($2)
+  EOQ
+
+  param "organization_logins" {}
+  param "team_slugs" {}
 }
 
 // select
@@ -32,8 +81,8 @@ edge "organization_to_team" {
 
   sql = <<-EOQ
     select
-      organization_id as from_id,
-      id as to_id
+      organization_login as from_id,
+      slug as to_id
     from
       github_team
     where
@@ -47,30 +96,65 @@ edge "organization_to_user" {
   title = "member"
 
   sql = <<-EOQ
-    with member_details as (
+    with non_team_members as (
       select
-        om.login as member_login,
-        o.login as org_login,
-        o.id as org_id
+        login
+      from 
+        github_organization_member 
+      where 
+        organization = $1
+      except
+      select
+        distinct login
       from
-        github_my_organization as o
-      join github_organization_member om
-        on om.organization = o.login
-      join jsonb_array_elements(o.members) as m
-        on om.login = m.value ->> 'login'
+        github_team_member
       where
-        o.login = any($1)
-      order by
-        om.role, upper(om.login)
+        organization = $1
+        and slug = any($2)
     )select
-      m.org_id as from_id,
-      u.id as to_id
-    from
-      member_details m,
-      github_user u
+      organization as from_id,
+      om.login as to_id
+    from 
+      github_organization_member om,
+      non_team_members nm
     where
-      u.login = m.member_login;
+      organization = $1
+      and nm.login = om.login
   EOQ
 
   param "organization_logins" {}
+  param "team_slugs" {}
+}
+
+edge "team_to_user" {
+  title = "member"
+
+  sql = <<-EOQ
+    with non_team_members as (
+      select
+        login
+      from 
+        github_organization_member 
+      where 
+        organization = $1
+      except
+      select
+        distinct login
+      from
+        github_team_member
+      where
+        organization = $1
+        and slug = any($2)
+    )select
+      slug as from_id,
+      login as to_id
+    from
+      github_team_member
+    where
+      organization = $1
+      and slug = any($2)
+  EOQ
+
+  param "organization_logins" {}
+  param "team_slugs" {}
 }

@@ -3,7 +3,7 @@ node "organization" {
 
   sql = <<-EOQ
     select
-      id as id,
+      login as id,
       login as title,
       jsonb_build_object(
         'Name', name,

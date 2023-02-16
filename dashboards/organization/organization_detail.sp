@@ -23,6 +23,7 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
+
     card {
       query = query.organization_total_private_repos
       width = 2
@@ -30,6 +31,7 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
+
     card {
       query = query.organization_public_repos
       width = 2
@@ -37,13 +39,7 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
-    card {
-      query = query.organization_verified
-      width = 2
-      args = {
-        organization_login = self.input.organization_login.value
-      }
-    }
+
     # Assessment
     card {
       query = query.organization_two_factor_requirement
@@ -52,6 +48,7 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
+
     card {
       query = query.organization_unused_seats
       width = 2
@@ -59,6 +56,11 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
+  }
+
+  with "teams_for_organization" {
+    query = query.teams_for_organization
+    args  = [self.input.organization_login.value]
   }
 
   with "repositories_for_organization" {
@@ -107,7 +109,16 @@ dashboard "organization_detail" {
       edge {
         base = edge.organization_to_repository
         args = {
-          organization_logins = [self.input.organization_login.value]
+          organization_logins = self.input.organization_login.value
+          team_slugs          = with.teams_for_organization.rows[*].slug
+        }
+      }
+
+      edge {
+        base = edge.team_to_repository
+        args = {
+          organization_logins = self.input.organization_login.value
+          team_slugs          = with.teams_for_organization.rows[*].slug
         }
       }
 
@@ -121,7 +132,16 @@ dashboard "organization_detail" {
       edge {
         base = edge.organization_to_user
         args = {
-          organization_logins = [self.input.organization_login.value]
+          organization_logins = self.input.organization_login.value
+          team_slugs          = with.teams_for_organization.rows[*].slug
+        }
+      }
+
+      edge {
+        base = edge.team_to_user
+        args = {
+          organization_logins = self.input.organization_login.value
+          team_slugs          = with.teams_for_organization.rows[*].slug
         }
       }
     }
@@ -229,23 +249,6 @@ query "organization_two_factor_requirement" {
   param "organization_login" {}
 }
 
-query "organization_verified" {
-  sql = <<-EOQ
-    select
-      case
-        when is_verified then 'Enabled'
-        else 'Disabled'
-      end as value,
-      'Domain verified' as label
-    from
-      github_my_organization
-    where
-      login = $1;
-  EOQ
-
-  param "organization_login" {}
-}
-
 query "organization_unused_seats" {
   sql = <<-EOQ
     select
@@ -293,11 +296,11 @@ query "repositories_for_organization" {
 query "teams_for_organization" {
   sql = <<-EOQ
     select 
-      id as team_id 
+      slug 
     from 
       github_my_team 
     where 
-      owner_login = $1;
+      organization_login = $1;
   EOQ
 }
 
@@ -323,21 +326,17 @@ query "members_for_organization" {
 query "organization_overview" {
   sql = <<-EOQ
     select
+      id as "ID",
       name as "Name",
-      login as "organization_login",
+      login as "Organization Login",
       company as "Company",
       description as "Description",
       created_at as "Created At",
-      has_organization_projects as "Has Organization Projects",
-      has_repository_projects as "Has Repository Projects",
       html_url,
-      id as "ID",
       location as "Location",
-      node_id as "Node ID",
       plan_name as "Plan Name",
       plan_seats as "Plan Seats",
       plan_filled_seats as "Plan Filled Seats",
-      plan_private_repos as "Plan Private Repos",
       private_gists as "Private Gists",
       public_gists as "Public Gists"
     from

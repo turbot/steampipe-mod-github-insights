@@ -279,11 +279,13 @@ query "pull_request_overview" {
   sql = <<-EOQ
     select
       author_login as "Author Login",
+      case 
+        when draft then 'Enabled' else 'Disabled' 
+      end as "Draft State",
+      mergeable_state as "Mergeable State",
       created_at as "Created At",
       updated_at as "Updated At",
-      draft as "Draft",
-      mergeable_state as "Mergeable State",
-      review_comments as "Review Comments",
+      review_comments as "Total Review Comments",
       html_url as "URL"
     from
       github_pull_request

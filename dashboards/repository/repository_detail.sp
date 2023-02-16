@@ -496,7 +496,7 @@ query "repository_open_issues" {
     where
       repository_full_name = $1
       and state = 'open'
-      and created_at >= (current_date - interval '7' day);
+      and created_at >= (current_date - interval '7' day)
     order by created_at desc;
   EOQ
 
@@ -519,7 +519,7 @@ query "repository_open_pull_requests" {
     where
       repository_full_name = $1
       and state = 'open'
-      and created_at >= (current_date - interval '7' day);
+      and created_at >= (current_date - interval '7' day)
     order by created_at desc;
   EOQ
 
