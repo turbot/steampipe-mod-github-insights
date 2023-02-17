@@ -52,10 +52,20 @@ dashboard "issue_dashboard" {
     title = "Analysis"
 
     chart {
-      title = "Issues By Author Association To The Repo"
+      title = "Issues by State"
       type  = "column"
       width = 4
-      query = query.issue_by_author_association
+      query = query.issues_by_state
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
+
+    chart {
+      title = "Issues by Tag"
+      type  = "column"
+      width = 4
+      query = query.issues_by_tag
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -132,17 +142,38 @@ query "issue_open_unassigned_count" {
 
 # Analysis Queries
 
-query "issue_by_author_association" {
+query "issues_by_state" {
   sql = <<-EOQ
     select
-      initcap(author_association) as "Association",
-      count(*) as "issues"
+      state as "State",
+      count(i.*) as total
     from
-      github_issue
+      github_issue i
     where
       repository_full_name = $1
-    group by
-      author_association;
+    group by 
+      state
+    order by 
+      total;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "issues_by_tag" {
+  sql = <<-EOQ
+    select
+      t as "Tag",
+      count(i.*) as total
+    from
+      github_issue i,
+      jsonb_object_keys(tags) t
+    where
+      repository_full_name = $1
+    group by 
+      t
+    order by 
+      total;
   EOQ
 
   param "repository_full_name" {}

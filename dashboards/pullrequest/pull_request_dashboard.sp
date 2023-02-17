@@ -94,40 +94,20 @@ dashboard "pullrequest_dashboard" {
     title = "Analysis"
 
     chart {
-      title = "Pull Requests By Locked State"
+      title = "Pull Requests by State"
       type  = "column"
       width = 4
-      query = query.pull_request_by_locked
+      query = query.pull_requests_by_state
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
     }
 
     chart {
-      title = "Pull Requests By Rebaseable"
+      title = "Pull Requests by Author"
       type  = "column"
       width = 4
-      query = query.pull_request_by_rebaseable
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
-
-    chart {
-      title = "Pull Requests By Milestone"
-      type  = "column"
-      width = 4
-      query = query.pull_request_by_milestone
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
-
-    chart {
-      title = "Pull Requests By Mergeable"
-      type  = "column"
-      width = 4
-      query = query.pull_request_by_mergeable
+      query = query.pull_requests_by_author_login
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -241,68 +221,37 @@ query "pull_request_by_without_reviewers" {
   param "repository_full_name" {}
 }
 
-
-query "pull_request_by_locked" {
+query "pull_requests_by_state" {
   sql = <<-EOQ
     select
-      locked,
-      count(*) as "pull requests"
+      state as "State",
+      count(r.*) as total
     from
-      github_pull_request
+      github_pull_request r
     where
       repository_full_name = $1
-    group by
-      locked;
+    group by 
+      state
+    order by 
+      state;
   EOQ
 
   param "repository_full_name" {}
 }
 
-query "pull_request_by_rebaseable" {
+query "pull_requests_by_author_login" {
   sql = <<-EOQ
     select
-      case when rebaseable then 'true' else 'false' end as status,
-      count(*) as "pull requests"
+      author_login as "author",
+      count(r.*) as total
     from
-      github_pull_request
+      github_pull_request r
     where
       repository_full_name = $1
-    group by
-      rebaseable;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "pull_request_by_milestone" {
-  sql = <<-EOQ
-    select
-      milestone_title,
-      count(*) as "pull requests"
-    from
-      github_pull_request
-    where
-      repository_full_name = $1
-      and milestone_title is not null
-    group by
-      milestone_title;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "pull_request_by_mergeable" {
-  sql = <<-EOQ
-    select
-      mergeable_state,
-      count(*) as "pull requests"
-    from
-      github_pull_request
-    where
-      repository_full_name = $1
-      and mergeable is not null
-    group by
-      mergeable_state;
+    group by 
+      author_login
+    order by 
+      total;
   EOQ
 
   param "repository_full_name" {}

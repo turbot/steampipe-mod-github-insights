@@ -146,7 +146,7 @@ dashboard "repository_detail" {
     table {
       title = "Overview"
       type  = "line"
-      width = 3
+      width = 2
       query = query.repository_overview
       args = {
         full_name = self.input.repository_full_name.value
@@ -159,10 +159,22 @@ dashboard "repository_detail" {
       }
     }
 
-    table {
-      title = "License Detail"
-      width = 3
-      query = query.repository_license
+    chart {
+      title = "Commits by Author"
+      type  = "column"
+      width = 4
+      query = query.commits_by_author
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
+
+    chart {
+      title = "Traffic Daily - Last 15 days"
+      type  = "line"
+      width = 6
+
+      query = query.traffic_past_2week
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -183,101 +195,6 @@ dashboard "repository_detail" {
       }
     }
 
-  }
-
-  container {
-
-    title = "Analysis"
-
-    container {
-
-      chart {
-        title = "Pull Requests by State"
-        type  = "column"
-        width = 4
-        query = query.pull_requests_by_state
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-
-      chart {
-        title = "Pull Requests by Author Association"
-        type  = "column"
-        width = 4
-        query = query.pull_requests_by_author_association
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-
-      chart {
-        title = "Pull Requests by Author"
-        type  = "column"
-        width = 4
-        query = query.pull_requests_by_author_login
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-    }
-
-    container {
-
-      chart {
-        title = "Issues by State"
-        type  = "column"
-        width = 4
-        query = query.issues_by_state
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-
-      chart {
-        title = "Issues by Author Association"
-        type  = "column"
-        width = 4
-        query = query.issues_by_author_association
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-
-      chart {
-        title = "Issues by Tag"
-        type  = "column"
-        width = 4
-        query = query.issues_by_tag
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-    }
-
-    container {
-
-      chart {
-        title = "Commits by Author"
-        type  = "column"
-        width = 4
-        query = query.commits_by_author
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-
-      chart {
-        title = "Traffic Daily - Last 15 days"
-        type  = "line"
-        width = 6
-
-        query = query.traffic_past_2week
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
-      }
-    }
   }
 
   container {
@@ -426,6 +343,9 @@ query "repository_overview" {
       full_name as "Repository Name",
       id as "Repository ID",
       description as "Description",
+      license ->> 'name' as "License Name",
+      created_at as "Creation date",
+      r.updated_at as "Last modified date",
       clone_url as "HTTP Clone URL",
       git_url as "SSH Clone URL",
       case
@@ -440,30 +360,16 @@ query "repository_overview" {
         when allow_squash_merge then 'Enabled'
         else 'Disabled'
       end as "Allow Squash Merge",
-      created_at as "Creation date",
-      updated_at as "Last modified date",
       html_url
     from
-      github_my_repository
+      github_my_repository r,
+      github_community_profile
     where
-      full_name = $1;
+      full_name = $1
+      and repository_full_name = $1;
   EOQ
 
   param "full_name" {}
-}
-
-query "repository_license" {
-  sql = <<-EOQ
-    select
-      license ->> 'name' as "License Name",
-      license ->> 'key' as "License Key"
-    from
-      github_community_profile
-    where
-      repository_full_name = $1;
-  EOQ
-
-  param "repository_full_name" {}
 }
 
 query "repository_branches" {
@@ -578,115 +484,6 @@ query "collaborators_for_repository" {
       github_my_repository
     where
       full_name = $1
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "pull_requests_by_state" {
-  sql = <<-EOQ
-    select
-      state as "State",
-      count(r.*) as total
-    from
-      github_pull_request r
-    where
-      repository_full_name = $1
-    group by 
-      state
-    order by 
-      state;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "pull_requests_by_author_association" {
-  sql = <<-EOQ
-    select
-      author_association as "author association",
-      count(r.*) as total
-    from
-      github_pull_request r
-    where
-      repository_full_name = $1
-    group by 
-      author_association
-    order by 
-      author_association;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "pull_requests_by_author_login" {
-  sql = <<-EOQ
-    select
-      author_login as "author",
-      count(r.*) as total
-    from
-      github_pull_request r
-    where
-      repository_full_name = $1
-    group by 
-      author_login
-    order by 
-      total;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "issues_by_state" {
-  sql = <<-EOQ
-    select
-      state as "State",
-      count(i.*) as total
-    from
-      github_issue i
-    where
-      repository_full_name = $1
-    group by 
-      state
-    order by 
-      total;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "issues_by_author_association" {
-  sql = <<-EOQ
-    select
-      author_association as "author association",
-      count(i.*) as total
-    from
-      github_issue i
-    where
-      repository_full_name = $1
-    group by 
-      author_association
-    order by 
-      author_association;
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "issues_by_tag" {
-  sql = <<-EOQ
-    select
-      t as "Tag",
-      count(i.*) as total
-    from
-      github_issue i,
-      jsonb_object_keys(tags) t
-    where
-      repository_full_name = $1
-    group by 
-      t
-    order by 
-      total;
   EOQ
 
   param "repository_full_name" {}

@@ -184,21 +184,6 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
-
-    table {
-      title = "Members"
-      width = 3
-      query = query.organization_members
-      args = {
-        organization_login = self.input.organization_login.value
-      }
-      column "html_url" {
-        display = "none"
-      }
-      column "organization_login" {
-        href = "{{.'html_url'}}"
-      }
-    }
   }
 }
 
@@ -252,7 +237,7 @@ query "organization_two_factor_requirement" {
 query "organization_unused_seats" {
   sql = <<-EOQ
     select
-      'Unused Seats' as label,
+      'Billed Unused Seats' as label,
       case
         when (plan_seats - plan_filled_seats) >= 0 then (plan_seats - plan_filled_seats)
         else 0
@@ -398,27 +383,6 @@ query "organization_social" {
       github_my_organization
     where
       login = $1;
-  EOQ
-
-  param "organization_login" {}
-}
-
-query "organization_members" {
-  sql = <<-EOQ
-    select
-      om.login as "Member Login",
-      initcap(om.role) as "Role",
-      m.value ->> 'html_url' as "URL"
-    from
-      github_my_organization as o
-      join github_organization_member om
-        on om.organization = o.login
-      join jsonb_array_elements(o.members) as m
-        on om.login = m.value ->> 'login'
-    where
-      o.login = $1
-    order by
-      om.role, upper(om.login);
   EOQ
 
   param "organization_login" {}
