@@ -8,9 +8,10 @@ dashboard "organization_member_report" {
   })
 
   input "organization_member_report_login" {
-    title = "Select an organization:"
-    query = query.organization_input
-    width = 4
+    // title = "Select an organization:"
+    placeholder = "Select an organization"
+    query       = query.organization_input
+    width       = 4
   }
 
   container {

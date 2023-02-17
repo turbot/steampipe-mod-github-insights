@@ -8,7 +8,8 @@ dashboard "repository_detail" {
   })
 
   input "repository_full_name" {
-    title = "Select a repository:"
+    // title = "Select a repository:"
+    placeholder = "Select a repository"
     query = query.repository_input
     width = 4
   }
@@ -159,39 +160,38 @@ dashboard "repository_detail" {
       }
     }
 
-    chart {
-      title = "Commits by Author"
-      type  = "column"
-      width = 4
-      query = query.commits_by_author
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
+    container {
 
-    chart {
-      title = "Traffic Daily - Last 15 days"
-      type  = "line"
-      width = 6
+      width = 10
 
-      query = query.traffic_past_2week
-      args = {
-        repository_full_name = self.input.repository_full_name.value
+      chart {
+        title = "Commits by Author"
+        type  = "column"
+        width = 5
+        query = query.commits_by_author
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
       }
-    }
 
-    table {
-      title = "Protected Branches"
-      width = 6
-      query = query.repository_branches
-      args = {
-        repository_full_name = self.input.repository_full_name.value
+      chart {
+        title = "Traffic Daily - Last 15 days"
+        type  = "line"
+        width = 7
+
+        query = query.traffic_past_2week
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
       }
-      column "repository_full_name" {
-        display = "none"
-      }
-      column "Branch Name" {
-        href = "${dashboard.branch_detail.url_path}?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.branch_name | @uri}}"
+
+      table {
+        title = "Repository Configurations"
+        width = 12
+        query = query.repository_configurations
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
       }
     }
 
@@ -339,54 +339,37 @@ query "repository_security" {
 
 query "repository_overview" {
   sql = <<-EOQ
+    with protected_branch_array as (
+      SELECT 
+        ARRAY(select
+        name
+      from
+        github_branch
+      where
+        repository_full_name = $1
+        and protected) as protected_branches,
+      $1 as repository_full_name
+    )
     select
       full_name as "Repository Name",
       id as "Repository ID",
       description as "Description",
-      license ->> 'name' as "License Name",
+      license_name as "License Name",
       created_at as "Creation date",
       r.updated_at as "Last modified date",
       clone_url as "HTTP Clone URL",
       git_url as "SSH Clone URL",
-      case
-        when allow_merge_commit then 'Enabled'
-        else 'Disabled'
-      end as "Allow Merge Commit",
-      case
-        when allow_rebase_merge then 'Enabled'
-        else 'Disabled'
-      end as "Allow Rebase Merge",
-      case
-        when allow_squash_merge then 'Enabled'
-        else 'Disabled'
-      end as "Allow Squash Merge",
-      html_url
+      html_url,
+      case when pb.protected_branches is null then pb.protected_branches::text else 'None' end as "Protected Branches"
     from
       github_my_repository r,
-      github_community_profile
+      protected_branch_array pb
     where
       full_name = $1
-      and repository_full_name = $1;
+      and pb.repository_full_name = full_name;
   EOQ
 
   param "full_name" {}
-}
-
-query "repository_branches" {
-  sql = <<-EOQ
-    select
-      name as "Branch Name",
-      protected as "Protected",
-      repository_full_name
-    from
-      github_branch
-    where
-      repository_full_name = $1
-      and protected
-    order by name;
-  EOQ
-
-  param "repository_full_name" {}
 }
 
 query "repository_open_issues" {
@@ -404,6 +387,34 @@ query "repository_open_issues" {
       and state = 'open'
       and created_at >= (current_date - interval '7' day)
     order by created_at desc;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "repository_configurations" {
+  sql = <<-EOQ
+    select
+      case
+        when allow_merge_commit then 'Enabled'
+        else 'Disabled'
+      end as "Allow Merge Commit",
+      case
+        when allow_rebase_merge then 'Enabled'
+        else 'Disabled'
+      end as "Allow Rebase Merge",
+      case
+        when allow_squash_merge then 'Enabled'
+        else 'Disabled'
+      end as "Allow Squash Merge",
+      case
+        when delete_branch_on_merge then 'Enabled'
+        else 'Disabled'
+      end as "Delete Branch on Merge"
+    from
+      github_my_repository
+    where
+      full_name = $1
   EOQ
 
   param "repository_full_name" {}

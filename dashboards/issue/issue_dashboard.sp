@@ -8,9 +8,10 @@ dashboard "issue_dashboard" {
   })
 
   input "repository_full_name" {
-    title = "Select a repository:"
-    query = query.repository_input
-    width = 4
+    // title = "Select a repository:"
+    placeholder = "Select a repository"
+    query       = query.repository_input
+    width       = 4
   }
 
   # Top cards

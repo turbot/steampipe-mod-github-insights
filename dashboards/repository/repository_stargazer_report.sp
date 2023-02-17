@@ -1,16 +1,17 @@
 dashboard "repository_stargazer_report" {
 
   title         = "GitHub Repository Stargazer Report"
-  documentation = file("./dashboards/issue/docs/issue_open_report.md")
+  documentation = file("./dashboards/repository/docs/repository_stargazer_report.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Report"
   })
 
   input "repository_full_name" {
-    title = "Select a repository:"
-    query = query.repository_input
-    width = 4
+    // title = "Select a repository:"
+    placeholder = "Select a repository"
+    query       = query.repository_input
+    width       = 4
   }
 
   container {

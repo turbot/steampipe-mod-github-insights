@@ -8,9 +8,10 @@ dashboard "organization_detail" {
   })
 
   input "organization_login" {
-    title = "Select a organization:"
-    query = query.organization_input
-    width = 4
+    // title = "Select an organization:"
+    placeholder = "Select an organization"
+    query       = query.organization_input
+    width       = 4
   }
 
   # Top cards
