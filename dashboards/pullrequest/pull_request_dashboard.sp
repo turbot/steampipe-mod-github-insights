@@ -244,15 +244,17 @@ query "pull_requests_by_author_login" {
   sql = <<-EOQ
     select
       author_login as "author",
+      state,
       count(r.*) as total
     from
       github_pull_request r
     where
       repository_full_name = $1
     group by 
+      state,
       author_login
     order by 
-      total;
+      total desc;
   EOQ
 
   param "repository_full_name" {}
@@ -263,13 +265,15 @@ query "pull_request_by_age" {
     select
       to_char(created_at,
           'YYYY-MM') as creation_month,
-      count(*) as "pull requests"
+      state,
+      count(*) as total
     from
       github_pull_request
     where
       repository_full_name = $1
     group by
-      created_at;
+      created_at,
+      state;
   EOQ
 
   param "repository_full_name" {}

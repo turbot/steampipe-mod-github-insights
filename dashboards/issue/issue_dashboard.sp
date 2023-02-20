@@ -165,16 +165,17 @@ query "issues_by_tag" {
   sql = <<-EOQ
     select
       t as "Tag",
-      count(i.*) as total
+      state,
+      count(i.state) as total
     from
       github_issue i,
       jsonb_object_keys(tags) t
     where
       repository_full_name = $1
     group by 
-      t
+      t, state
     order by 
-      total;
+      total desc;
   EOQ
 
   param "repository_full_name" {}
@@ -185,12 +186,14 @@ query "issue_by_age" {
     select
       to_char(created_at,
           'YYYY-MM') as creation_month,
-      count(*) as "issues"
+      state,
+      count(*) as total
     from
       github_issue
     where
       repository_full_name = $1
     group by
+      state,
       creation_month;
   EOQ
 

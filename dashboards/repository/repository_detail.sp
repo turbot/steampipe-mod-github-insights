@@ -10,8 +10,8 @@ dashboard "repository_detail" {
   input "repository_full_name" {
     // title = "Select a repository:"
     placeholder = "Select a repository"
-    query = query.repository_input
-    width = 4
+    query       = query.repository_input
+    width       = 4
   }
 
   container {
@@ -185,16 +185,40 @@ dashboard "repository_detail" {
         }
       }
 
+    }
+
+  }
+
+  container {
+
+    input "pull_requests_by_author_login_by_days_input" {
+      width = 2
+      type  = "text"
+      title = "Enter no. of days"
+    }
+
+    container {
+
+      chart {
+        title = "Pull Requests by Author"
+        type  = "column"
+        width = 4
+        query = query.pull_requests_by_author_login_by_days
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+          time                 = self.input.pull_requests_by_author_login_by_days_input.value
+        }
+      }
+
       table {
         title = "Repository Configurations"
-        width = 12
+        width = 8
         query = query.repository_configurations
         args = {
           repository_full_name = self.input.repository_full_name.value
         }
       }
     }
-
   }
 
   container {
@@ -215,9 +239,9 @@ dashboard "repository_detail" {
     }
 
     table {
-      title = "Open Pull Requests (Last 7 days)"
+      title = "Pull Requests (Last 7 days)"
       width = 12
-      query = query.repository_open_pull_requests
+      query = query.repository_recent_pull_requests
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -420,7 +444,7 @@ query "repository_configurations" {
   param "repository_full_name" {}
 }
 
-query "repository_open_pull_requests" {
+query "repository_recent_pull_requests" {
   sql = <<-EOQ
     select
       issue_number as "Issue",
@@ -435,7 +459,6 @@ query "repository_open_pull_requests" {
       github_pull_request
     where
       repository_full_name = $1
-      and state = 'open'
       and created_at >= (current_date - interval '7' day)
     order by created_at desc;
   EOQ
@@ -535,6 +558,29 @@ query "traffic_past_2week" {
 
   param "repository_full_name" {}
 }
+
+query "pull_requests_by_author_login_by_days" {
+  sql = <<-EOQ
+    select
+      author_login as "author",
+      state,
+      count(r.*) as total
+    from
+      github_pull_request r
+    where
+      repository_full_name = $1
+      and (now()::date - created_at::date <= $2 or now()::date - updated_at::date <= $2)
+    group by 
+      state,
+      author_login
+    order by 
+      total desc;
+  EOQ
+
+  param "repository_full_name" {}
+  param "time" {}
+}
+
 //      with values as (
 //  select 
 //     timestamp, 
