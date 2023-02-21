@@ -26,14 +26,6 @@ dashboard "repository_detail" {
 
     card {
       width = 2
-      query = query.repository_status
-      args = {
-        full_name = self.input.repository_full_name.value
-      }
-    }
-
-    card {
-      width = 2
       query = query.repository_stargazers
       args = {
         full_name = self.input.repository_full_name.value
@@ -59,6 +51,14 @@ dashboard "repository_detail" {
     card {
       width = 2
       query = query.repository_security
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
+
+    card {
+      width = 2
+      query = query.repository_dependabot_alerts
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -195,40 +195,19 @@ dashboard "repository_detail" {
       width = 2
       type  = "text"
       title = "Enter no. of days"
-    }
 
-    container {
-
-      chart {
-        title = "Pull Requests by Author"
-        type  = "column"
-        width = 4
-        query = query.pull_requests_by_author_login_by_days
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-          time                 = self.input.pull_requests_by_author_login_by_days_input.value
-        }
-      }
-
-      table {
-        title = "Repository Configurations"
-        width = 8
-        query = query.repository_configurations
-        args = {
-          repository_full_name = self.input.repository_full_name.value
-        }
+      args = {
+        repository_full_name = self.input.repository_full_name.value
       }
     }
-  }
-
-  container {
 
     table {
-      title = "Open Issues (Last 7 days)"
+      title = "Open Issues"
       width = 12
       query = query.repository_open_issues
       args = {
         repository_full_name = self.input.repository_full_name.value
+        time                 = self.input.pull_requests_by_author_login_by_days_input.value
       }
       column "html_url" {
         display = "none"
@@ -239,11 +218,12 @@ dashboard "repository_detail" {
     }
 
     table {
-      title = "Pull Requests (Last 7 days)"
+      title = "Pull Requests"
       width = 12
       query = query.repository_recent_pull_requests
       args = {
         repository_full_name = self.input.repository_full_name.value
+        time                 = self.input.pull_requests_by_author_login_by_days_input.value
       }
       column "html_url" {
         display = "none"
@@ -361,6 +341,24 @@ query "repository_security" {
   param "full_name" {}
 }
 
+query "repository_dependabot_alerts" {
+  sql = <<-EOQ
+    select
+      'Dependabot Alerts' as "label",
+      count(*) as "value",
+      case when count(*) > 0 then 'alert'
+        else 'ok'
+      end as "type"
+    from
+      github_repository_dependabot_alert
+    where
+      repository_full_name = $1
+      and state = 'open';
+  EOQ
+
+  param "full_name" {}
+}
+
 query "repository_overview" {
   sql = <<-EOQ
     with protected_branch_array as (
@@ -409,11 +407,12 @@ query "repository_open_issues" {
     where
       repository_full_name = $1
       and state = 'open'
-      and created_at >= (current_date - interval '7' day)
+      and now()::date - created_at::date <= $2
     order by created_at desc;
   EOQ
 
   param "repository_full_name" {}
+  param "time" {}
 }
 
 query "repository_configurations" {
@@ -449,21 +448,23 @@ query "repository_recent_pull_requests" {
     select
       issue_number as "Issue",
       title as "Title",
+      initcap(state) as "State",
       created_at as "Created At",
+      updated_at as "Updated At",
       author_login as "Author",
       changed_files as "Changed Files",
-      comments as "Comments",
       commits as "Commits",
       html_url
     from
       github_pull_request
     where
       repository_full_name = $1
-      and created_at >= (current_date - interval '7' day)
+      and (now()::date - created_at::date <= $2 or now()::date - updated_at::date <= $2)
     order by created_at desc;
   EOQ
 
   param "repository_full_name" {}
+  param "time" {}
 }
 
 // query "repository_collaborators" {
