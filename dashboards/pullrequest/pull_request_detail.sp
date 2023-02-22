@@ -398,14 +398,11 @@ query "pull_request_reviewers" {
   sql = <<-EOQ
     select
       u.login as "Login",
-      u.name as "Name",
       u.id as "ID",
-      u.node_id as "Node ID",
       u.site_admin as "Site Admin",
       u.type as "Type",
       u.created_at as "Created At",
-      u.html_url as "HTML URL",
-      u.avatar_url as "Avatar URL"
+      u.html_url as "HTML URL"
     from
       github_pull_request,
       jsonb_array_elements_text(requested_reviewer_logins) as l

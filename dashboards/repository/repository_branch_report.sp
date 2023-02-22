@@ -36,9 +36,18 @@ dashboard "repository_branch_report" {
       column "commit_url" {
         display = "none"
       }
-      # column "Number" {
-      #   href = "{{.'html_url'}}"
-      # }
+
+      column "repository_full_name" {
+        display = "none"
+      }
+
+      column "Name" {
+        href  = "/github_insights.dashboard.branch_detail?input.repository_full_name={{.repository_full_name | @uri}}&input.branch_name={{.'Name' | @uri}}"
+      }
+
+      column "Commit SHA" {
+        href = "{{.'html_url'}}"
+      }
     }
   }
 }
@@ -64,7 +73,8 @@ query "repository_branch_report" {
       c.author_date as "Author Date",
       t.protected as "Protected",
       c.message as "Commit Message",
-      t.commit_url
+      t.commit_url,
+      t.repository_full_name
     from
       github_branch as t
       left join github_commit as c

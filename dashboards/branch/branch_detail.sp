@@ -15,7 +15,7 @@ dashboard "branch_detail" {
   }
 
   input "branch_name" {
-    title = "Select a branch:"
+    placeholder = "Select a branch"
     query = query.branch_input
     width = 4
     args = {

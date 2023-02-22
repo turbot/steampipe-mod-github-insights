@@ -229,12 +229,10 @@ dashboard "repository_detail" {
         display = "none"
       }
       column "Issue" {
-        href = "{{.'html_url'}}"
+        href  = "/github_insights.dashboard.pull_request_detail?input.repository_full_name={{.repository_full_name | @uri}}&input.pull_request_id={{.'Issue' | @uri}}"
       }
     }
-
   }
-
 }
 
 query "repository_input" {
@@ -454,6 +452,7 @@ query "repository_recent_pull_requests" {
       author_login as "Author",
       changed_files as "Changed Files",
       commits as "Commits",
+      repository_full_name,
       html_url
     from
       github_pull_request
@@ -466,37 +465,6 @@ query "repository_recent_pull_requests" {
   param "repository_full_name" {}
   param "time" {}
 }
-
-// query "repository_collaborators" {
-//   sql = <<-EOQ
-//     with internal_collaborators as (
-//       select
-//         collaborator.value ->> 0 as "collaborator"
-//       from
-//         github_my_repository,
-//         jsonb_array_elements(collaborator_logins) as collaborator
-//       where
-//         full_name = $1
-//     ), external_collaborators as (
-//       select
-//         collaborator.value ->> 0 as "collaborator"
-//       from
-//         github_my_repository,
-//         jsonb_array_elements(outside_collaborator_logins) as collaborator
-//       where
-//         full_name = $1
-//     )
-
-//     select collaborator as "Login", 'internal' as "Type" from internal_collaborators
-//     except
-//     select collaborator as "Login", 'internal' as "Type" from external_collaborators
-//     union
-//     select collaborator as "Login", 'external' as "Type" from external_collaborators;
-
-//   EOQ
-
-//   param "repository_full_name" {}
-// }
 
 query "branches_for_repository" {
   sql = <<-EOQ
@@ -581,28 +549,3 @@ query "pull_requests_by_author_login_by_days" {
   param "repository_full_name" {}
   param "time" {}
 }
-
-//      with values as (
-//  select 
-//     timestamp, 
-//     count, 
-//     'Total' as  total
-//   from 
-//     github_traffic_view_daily 
-//   where repository_full_name = $1
-
-//   union all
-
-//  select 
-//     timestamp, 
-//     uniques as count,
-//     'Uniques' as  total
-//   from 
-//     github_traffic_view_daily 
-//   where repository_full_name = $1
-//   order by timestamp
-//  ) select
-//   *
-//   from
-//     values
-//   group by timestamp, total, count
