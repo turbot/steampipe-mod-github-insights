@@ -46,8 +46,8 @@ edge "pull_request_to_commit" {
     from
       github_pull_request
     where
-      issue_number = any($1)
-      and repository_full_name = any($2)
+      issue_number  = $1
+      and repository_full_name = $2
   EOQ
 
   param "pull_request_ids" {}

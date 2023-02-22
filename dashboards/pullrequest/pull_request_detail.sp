@@ -14,7 +14,7 @@ dashboard "pull_request_detail" {
   }
 
   input "pull_request_id" {
-    title = "Select a pull request:"
+    placeholder = "Select a pull request"
     query = query.pull_request_input
     width = 6
     args = {
@@ -58,6 +58,22 @@ dashboard "pull_request_detail" {
         repository_full_name = self.input.repository_full_name.value
         pull_request_id      = self.input.pull_request_id.value
       }
+    }
+  }
+
+  with "base_ref_branches_for_pr" {
+    query = query.base_ref_branches_for_pr
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+      pull_request_id      = self.input.pull_request_id.value
+    }
+  }
+
+  with "head_ref_branches_for_pr" {
+    query = query.head_ref_branches_for_pr
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+      pull_request_id      = self.input.pull_request_id.value
     }
   }
 
@@ -105,6 +121,22 @@ dashboard "pull_request_detail" {
       }
 
       node {
+        base = node.branch
+        args = {
+          branch_names           = with.base_ref_branches_for_pr.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+      
+      node {
+        base = node.branch
+        args = {
+          branch_names           = with.head_ref_branches_for_pr.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      node {
         base = node.commit
         args = {
           commit_sha           = with.commits_for_pull_request.rows[*].commit_sha
@@ -113,10 +145,26 @@ dashboard "pull_request_detail" {
       }
 
       edge {
-        base = edge.pull_request_to_commit
+        base = edge.pull_request_to_branch
         args = {
           repository_full_names = [self.input.repository_full_name.value]
-          pull_request_ids      = [self.input.pull_request_id.value]
+          branch_names           = with.base_ref_branches_for_pr.rows[*].branch_name
+        }
+      }
+      
+      edge {
+        base = edge.branch_to_pull_request
+        args = {
+          branch_names           = with.head_ref_branches_for_pr.rows[*].branch_name
+          repository_full_names = [self.input.repository_full_name.value]
+        }
+      }
+
+      edge {
+        base = edge.pull_request_to_commit
+        args = {
+          repository_full_names = self.input.repository_full_name.value
+          pull_request_ids      = self.input.pull_request_id.value
         }
       }
 
@@ -407,6 +455,36 @@ query "commits_for_pull_request" {
     where
       repository_full_name = $1
       and issue_number = $2
+  EOQ
+
+  param "repository_full_name" {}
+  param "pull_request_id" {}
+}
+
+query "base_ref_branches_for_pr" {
+  sql = <<-EOQ
+    select
+      base_ref as branch_name
+    from
+      github_pull_request
+    where
+      repository_full_name = $1
+      and issue_number = $2;
+  EOQ
+
+  param "repository_full_name" {}
+  param "pull_request_id" {}
+}
+
+query "head_ref_branches_for_pr" {
+  sql = <<-EOQ
+    select
+      head_ref as branch_name
+    from
+      github_pull_request
+    where
+      repository_full_name = $1
+      and issue_number = $2;
   EOQ
 
   param "repository_full_name" {}
