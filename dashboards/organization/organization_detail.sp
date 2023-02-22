@@ -57,6 +57,14 @@ dashboard "organization_detail" {
         organization_login = self.input.organization_login.value
       }
     }
+
+    card {
+      width = 2
+      query = query.organization_dependabot_alerts
+      args = {
+        organization_login = self.input.organization_login.value
+      }
+    }
   }
 
   with "teams_for_organization" {
@@ -384,6 +392,24 @@ query "organization_social" {
       github_my_organization
     where
       login = $1;
+  EOQ
+
+  param "organization_login" {}
+}
+
+query "organization_dependabot_alerts" {
+  sql = <<-EOQ
+    select
+      'Dependabot Alerts' as "label",
+      count(*) as "value",
+      case when count(*) > 0 then 'alert'
+        else 'ok'
+      end as "type"
+    from
+      github_organization_dependabot_alert
+    where
+      organization = $1
+      and state = 'open';
   EOQ
 
   param "organization_login" {}

@@ -189,7 +189,17 @@ dashboard "repository_detail" {
 
   }
 
+
   container {
+  
+    table {
+      title = "Dependabot Alerts"
+      width = 12
+      query = query.repository_dependabot_alert_details
+      args = {
+        full_name = self.input.repository_full_name.value
+      }
+    }
 
     input "pull_requests_by_author_login_by_days_input" {
       width = 2
@@ -352,6 +362,28 @@ query "repository_dependabot_alerts" {
     where
       repository_full_name = $1
       and state = 'open';
+  EOQ
+
+  param "full_name" {}
+}
+
+query "repository_dependabot_alert_details" {
+  sql = <<-EOQ
+    select
+      security_advisory_summary as "Summary",
+      state as "State",
+      security_advisory_severity as "Severity",
+      security_advisory_cvss_score as "CVSS Score",
+      dependency_package_name as "Dependency Package Name",
+      dependency_manifest_path as "Dependency Manifest Path",
+      created_at as "Created At"
+    from
+      github_repository_dependabot_alert
+    where
+      repository_full_name = $1
+    order by
+      state desc,
+      security_advisory_cvss_score desc;
   EOQ
 
   param "full_name" {}
