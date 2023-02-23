@@ -89,20 +89,30 @@ dashboard "pullrequest_dashboard" {
       }
     }
 
+    chart {
+      title = "Open Pull Requests"
+      query = query.pull_requests_by_state
+      type  = "donut"
+      width = 3
+
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+
+      series "count" {
+        point "closed" {
+          color = "ok"
+        }
+        point "open" {
+          color = "alert"
+        }
+      }
+    }
+
   }
 
   container {
     title = "Analysis"
-
-    chart {
-      title = "Pull Requests by State"
-      type  = "column"
-      width = 4
-      query = query.pull_requests_by_state
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
 
     chart {
       title = "Pull Requests by Author"
@@ -112,19 +122,54 @@ dashboard "pullrequest_dashboard" {
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+
+      series closed {
+        title = "Closed PRs"
+        color = "green"
+      }
+      series open {
+        title = "Open PRs"
+        color = "red"
+      }
     }
 
     chart {
       title = "Pull Requests By Age"
-      type  = "column"
+      type  = "area"
+      grouping = "stack"
       width = 4
       query = query.pull_request_by_age
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+
+      series closed {
+        title = "Closed PRs"
+        color = "green"
+      }
+      series open {
+        title = "Open PRs"
+        color = "red"
+      }
+
     }
 
   }
+
+  table {
+      title = "Pull Requests - Last 7 Days"
+      width = 12
+      query = query.repository_recent_pull_requests
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+      column "html_url" {
+        display = "none"
+      }
+      column "Issue" {
+        href  = "/github_insights.dashboard.pull_request_detail?input.repository_full_name={{.repository_full_name | @uri}}&input.pull_request_id={{.'Issue' | @uri}}"
+      }
+    }
 }
 
 # Card Queries
@@ -226,7 +271,7 @@ query "pull_requests_by_state" {
   sql = <<-EOQ
     select
       state as "State",
-      count(r.*) as total
+      count(r.*)
     from
       github_pull_request r
     where

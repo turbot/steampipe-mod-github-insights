@@ -201,23 +201,12 @@ dashboard "repository_detail" {
       }
     }
 
-    input "pull_requests_by_author_login_by_days_input" {
-      width = 2
-      type  = "text"
-      title = "Enter no. of days"
-
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
-
     table {
-      title = "Open Issues"
+      title = "Issues - Last 7 Days"
       width = 12
-      query = query.repository_open_issues
+      query = query.repository_recent_issues
       args = {
         repository_full_name = self.input.repository_full_name.value
-        time                 = self.input.pull_requests_by_author_login_by_days_input.value
       }
       column "html_url" {
         display = "none"
@@ -228,12 +217,11 @@ dashboard "repository_detail" {
     }
 
     table {
-      title = "Pull Requests"
+      title = "Pull Requests - Last 7 Days"
       width = 12
       query = query.repository_recent_pull_requests
       args = {
         repository_full_name = self.input.repository_full_name.value
-        time                 = self.input.pull_requests_by_author_login_by_days_input.value
       }
       column "html_url" {
         display = "none"
@@ -424,11 +412,12 @@ query "repository_overview" {
   param "full_name" {}
 }
 
-query "repository_open_issues" {
+query "repository_recent_issues" {
   sql = <<-EOQ
     select
       issue_number as "Issue",
       title as "Title",
+      state as "State",
       created_at as "Created At",
       author_login as "Author",
       html_url
@@ -436,13 +425,13 @@ query "repository_open_issues" {
       github_issue
     where
       repository_full_name = $1
-      and state = 'open'
-      and now()::date - created_at::date <= $2
-    order by created_at desc;
+      and now()::date - created_at::date <= 7
+    order by 
+      state desc,
+      created_at desc;
   EOQ
 
   param "repository_full_name" {}
-  param "time" {}
 }
 
 query "repository_configurations" {
@@ -490,12 +479,13 @@ query "repository_recent_pull_requests" {
       github_pull_request
     where
       repository_full_name = $1
-      and (now()::date - created_at::date <= $2 or now()::date - updated_at::date <= $2)
-    order by created_at desc;
+      and (now()::date - created_at::date <= 7 or now()::date - updated_at::date <= 7)
+    order by 
+      state desc,
+      created_at desc;
   EOQ
 
   param "repository_full_name" {}
-  param "time" {}
 }
 
 query "branches_for_repository" {

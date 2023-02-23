@@ -50,17 +50,33 @@ dashboard "issue_dashboard" {
   }
 
   container {
-    title = "Analysis"
+
+    title = "Assessments"
 
     chart {
-      title = "Issues by State"
-      type  = "column"
-      width = 4
+      title = "Open Issues"
       query = query.issues_by_state
+      type  = "donut"
+      width = 3
+
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+
+      series "count" {
+        point "closed" {
+          color = "ok"
+        }
+        point "open" {
+          color = "alert"
+        }
+      }
     }
+
+  }
+
+  container {
+    title = "Analysis"
 
     chart {
       title = "Issues by Tag"
@@ -70,18 +86,53 @@ dashboard "issue_dashboard" {
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+
+      series closed {
+        title = "Closed Issues"
+        color = "green"
+      }
+      series open {
+        title = "Open Issues"
+        color = "red"
+      }
     }
 
     chart {
       title = "Issues By Age"
-      type  = "column"
+      type  = "area"
+      grouping = "stack"
       width = 4
       query = query.issue_by_age
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
+
+      series closed {
+        title = "Closed Issues"
+        color = "green"
+      }
+      series open {
+        title = "Open Issues"
+        color = "red"
+      }
+
     }
   }
+
+  table {
+      title = "Issues - Last 7 Days"
+      width = 12
+      query = query.repository_recent_issues
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+      column "html_url" {
+        display = "none"
+      }
+      column "Issue" {
+        href = "{{.'html_url'}}"
+      }
+    }
 }
 
 # Card Queries
@@ -147,7 +198,7 @@ query "issues_by_state" {
   sql = <<-EOQ
     select
       state as "State",
-      count(i.*) as total
+      count(i.*)
     from
       github_issue i
     where
@@ -155,7 +206,7 @@ query "issues_by_state" {
     group by 
       state
     order by 
-      total;
+      count;
   EOQ
 
   param "repository_full_name" {}
