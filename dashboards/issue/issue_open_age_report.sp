@@ -1,7 +1,7 @@
 dashboard "issue_open_report" {
 
-  title         = "GitHub Open Issue Report"
-  documentation = file("./dashboards/issue/docs/issue_open_report.md")
+  title         = "GitHub Open Issue Age Report"
+  documentation = file("./dashboards/issue/docs/issue_open_age_report.md")
 
   tags = merge(local.issue_common_tags, {
     type = "Report"
@@ -17,24 +17,8 @@ dashboard "issue_open_report" {
   container {
 
     card {
-      query = query.open_issues_label_stale
       width = 2
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
-
-    card {
-      width = 2
-      query = query.open_issues_label_bug
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-    }
-
-    card {
-      width = 2
-      query = query.open_issues_label_help_wanted
+      query = query.open_issues_count
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -50,8 +34,8 @@ dashboard "issue_open_report" {
     }
 
     card {
-      width = 2
       type  = "info"
+      width = 2
       query = query.open_issues_30_90_days_count
       args = {
         repository_full_name = self.input.repository_full_name.value
@@ -61,7 +45,16 @@ dashboard "issue_open_report" {
     card {
       width = 2
       type  = "info"
-      query = query.open_issues_90_days_count
+      query = query.open_issues_90_365_days_count
+      args = {
+        repository_full_name = self.input.repository_full_name.value
+      }
+    }
+
+    card {
+      width = 2
+      type  = "info"
+      query = query.open_issues_1_year_count
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -89,75 +82,54 @@ dashboard "issue_open_report" {
 // TODO: Format and uncomment commented columns
 query "open_issues" {
   sql = <<-EOQ
+    with issue_tags as (
+      select
+        issue_number,
+        string_agg(t, ', ') as tags
+      from
+        github_issue,
+        jsonb_object_keys(tags) as t
+      where
+        repository_full_name = $1
+        and state = 'open'
+      group by
+        issue_number
+    )
     select
-      issue_number as "Number",
+      i.issue_number as "Number",
       substring(title for 100) as "Title",
       author_login as "Author",
+      author_association as "Author Association",
       assignee_logins as "Assignees",
-      created_at as "Created At",
+      now()::date - created_at::date as "Age in Days",
+      now()::date - updated_at::date as "Days since last update",
       html_url,
-      locked as "Locked",
-      milestone_title as "Milestone"
+      t.tags as "Tags"
     from
-      github_issue, jsonb_array_elements(assignee_logins) as assignees
+      github_issue i
+      left join issue_tags as t 
+        on i.issue_number = t.issue_number
     where
-      repository_full_name = $1 and
-      state = 'open'
-    order by issue_number desc;
+      repository_full_name = $1
+      and state = 'open'
+    order by 
+      "Age in Days" desc
   EOQ
 
   param "repository_full_name" {}
 }
 
-query "open_issues_label_stale" {
+
+query "open_issues_count" {
   sql = <<-EOQ
-    select 
+    select
       count(*) as value,
-      'Stale Issues' as label
-    from 
-      github_issue,
-      jsonb_object_keys(tags) tag
-    where 
+      'Open Issues' as label
+    from
+      github_issue
+    where
       repository_full_name = $1
-      and tag = 'stale'
-      and state = 'open'
-    group by tag
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "open_issues_label_bug" {
-  sql = <<-EOQ
-    select 
-      count(*) as value,
-      'Open Bugs' as label
-    from 
-      github_issue,
-      jsonb_object_keys(tags) tag
-    where 
-      repository_full_name = $1
-      and tag = 'bug'
-      and state = 'open'
-    group by tag
-  EOQ
-
-  param "repository_full_name" {}
-}
-
-query "open_issues_label_help_wanted" {
-  sql = <<-EOQ
-    select 
-      count(*) as value,
-      'Help Wanted' as label
-    from 
-      github_issue,
-      jsonb_object_keys(tags) tag
-    where 
-      repository_full_name = $1
-      and tag = 'help wanted'
-      and state = 'open'
-    group by tag
+      and state = 'open';
   EOQ
 
   param "repository_full_name" {}
@@ -173,7 +145,8 @@ query "open_issues_30_days_count" {
     where
       repository_full_name = $1
       and state = 'open'
-      and created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
+      and (now()::date - created_at::date) <= 30
+      and created_at between symmetric now() - '0 days' :: interval and now() - '30 days' :: interval;
   EOQ
 
   param "repository_full_name" {}
@@ -195,17 +168,33 @@ query "open_issues_30_90_days_count" {
   param "repository_full_name" {}
 }
 
-query "open_issues_90_days_count" {
+query "open_issues_90_365_days_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      '> 90 Days' as label
+      '90-365 Days' as label
     from
       github_issue
     where
       repository_full_name = $1
       and state = 'open'
-      and created_at <= now() - '90 days' :: interval;
+      and created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "open_issues_1_year_count" {
+  sql = <<-EOQ
+    select
+      count(*) as value,
+      '> 1 Year' as label
+    from
+      github_issue
+    where
+      repository_full_name = $1
+      and state = 'open'
+      and created_at <= now() - '1 year' :: interval;
   EOQ
 
   param "repository_full_name" {}
