@@ -98,11 +98,15 @@ query "open_issues" {
     select
       i.issue_number as "Number",
       substring(title for 100) as "Title",
-      author_login as "Author",
-      author_association as "Author Association",
-      assignee_logins as "Assignees",
       now()::date - created_at::date as "Age in Days",
-      now()::date - updated_at::date as "Days since last update",
+      now()::date - updated_at::date as "Days Since Last Update",
+      author_login as "Author",
+      case 
+        when author_association = 'NONE' then 'External' 
+        else initcap(author_association) 
+      end as "Author Association",
+      --array_to_string(assignee_logins, ',') as "Assignees",
+      assignee_logins as "Assignees",
       html_url,
       t.tags as "Tags"
     from

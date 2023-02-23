@@ -167,7 +167,7 @@ dashboard "pullrequest_dashboard" {
         display = "none"
       }
       column "Issue" {
-        href  = "/github_insights.dashboard.pull_request_detail?input.repository_full_name={{.repository_full_name | @uri}}&input.pull_request_id={{.'Issue' | @uri}}"
+        href = "{{.'html_url'}}"
       }
     }
 }

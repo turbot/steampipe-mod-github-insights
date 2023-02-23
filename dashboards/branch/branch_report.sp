@@ -1,14 +1,13 @@
-dashboard "repository_branch_report" {
+dashboard "branch_report" {
 
-  title         = "GitHub Repository Branch Report"
-  documentation = file("./dashboards/repository/docs/repository_branch_report.md")
+  title         = "GitHub Branch Report"
+  documentation = file("./dashboards/branch/docs/branch_report.md")
 
-  tags = merge(local.repository_common_tags, {
-    type = "Report"
+  tags = merge(local.branch_common_tags, {
+    type = "Branch"
   })
 
   input "repository_full_name" {
-    // title       = "Select a repository:"
     placeholder = "Select a repository"
     query       = query.repository_input
     width       = 4

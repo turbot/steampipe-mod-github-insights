@@ -42,12 +42,12 @@ query "organization_member_report" {
     select
       u.login as "Member Login",
       name as "Name",
-      role as "Role",
+      initcap(role) as "Role",
       company as "Company",
       email as "Email",
       case when two_factor_authentication then 'Enabled' else 'Disabled' end as "Two Factor Authentication",
       location as "Location",
-      blog as "Blog"
+      blog as "Blog URL"
     from
       members as m
       left join github_user as u on u.login = m.login

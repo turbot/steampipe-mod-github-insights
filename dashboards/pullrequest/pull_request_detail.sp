@@ -332,7 +332,7 @@ query "pull_request_overview" {
         when draft then 'Enabled' else 'Disabled' 
       end as "Draft State",
       mergeable_state as "Mergeable State",
-      created_at as "Created At",
+      created_at as "Creation Date",
       updated_at as "Updated At",
       review_comments as "Total Review Comments",
       html_url as "URL"
@@ -401,7 +401,7 @@ query "pull_request_reviewers" {
       u.id as "ID",
       u.site_admin as "Site Admin",
       u.type as "Type",
-      u.created_at as "Created At",
+      u.created_at as "Creation Date",
       u.html_url as "HTML URL"
     from
       github_pull_request,

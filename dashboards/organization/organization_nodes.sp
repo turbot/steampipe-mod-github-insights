@@ -7,7 +7,7 @@ node "organization" {
       login as title,
       jsonb_build_object(
         'Name', name,
-        'Created At', created_at,
+        'Creation Date', created_at,
         'Description', description,
         'Email', email,
         'Is Verified', is_verified,

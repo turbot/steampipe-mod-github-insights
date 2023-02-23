@@ -1,9 +1,9 @@
-dashboard "repository_release_report" {
+dashboard "release_report" {
 
-  title         = "GitHub Repository Release Report"
-  documentation = file("./dashboards/repository/docs/repository_release_report.md")
+  title         = "GitHub Release Report"
+  documentation = file("./dashboards/release/docs/release_report.md")
 
-  tags = merge(local.repository_common_tags, {
+  tags = merge(local.release_common_tags, {
     type = "Report"
   })
 
@@ -56,13 +56,11 @@ query "repository_release_report" {
       author_login as "Author Login",
       tag_name as "Tag Name",
       draft as "Draft",
-      prerelease as "Prerelease",
-      created_at as "Created At",
+      prerelease as "Pre-release",
+      created_at as "Creation Date",
       published_at as "Published At",
-      upload_url as "Upload URL",
-      tarball_url as "Tarball URL",
-      zipball_url as "Zipball URL",
-      assets_url as "Assets URL"
+      tarball_url as "Download Tar URL",
+      zipball_url as "Download Zip URL"
     from
       github_release
     where

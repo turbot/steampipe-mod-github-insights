@@ -7,9 +7,9 @@ node "user" {
       login as title,
       jsonb_build_object(
         'ID', id,
-        'Created At', created_at,
+        'Creation Date', created_at,
         'Site Admin', site_admin,
-        'Created At', created_at,
+        'Creation Date', created_at,
         'Two Factor Authentication', two_factor_authentication,
         'Type', type
       ) as properties

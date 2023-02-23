@@ -325,7 +325,7 @@ query "organization_overview" {
       login as "Organization Login",
       company as "Company",
       description as "Description",
-      created_at as "Created At",
+      created_at as "Creation Date",
       html_url,
       location as "Location",
       plan_name as "Plan Name",

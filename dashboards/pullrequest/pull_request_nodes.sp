@@ -10,7 +10,7 @@ node "pull_request" {
         'Repository Full Name', repository_full_name,
         'Issue Number', issue_number,
         'Author Login', author_login,
-        'Created At', created_at,
+        'Creation Date', created_at,
         'Locked', locked,
         'Merged', merged,
         'State', state

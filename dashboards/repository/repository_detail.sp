@@ -165,10 +165,10 @@ dashboard "repository_detail" {
       width = 10
 
       chart {
-        title = "Commits by Author"
+        title = "Commits by Author - Top 10"
         type  = "column"
         width = 5
-        query = query.commits_by_author
+        query = query.commits_by_author_top_10
         args = {
           repository_full_name = self.input.repository_full_name.value
         }
@@ -199,6 +199,13 @@ dashboard "repository_detail" {
       args = {
         full_name = self.input.repository_full_name.value
       }
+
+      column "html_url" {
+        display = "none"
+      }
+      column "Summary" {
+        href = "{{.'html_url'}}"
+      }
     }
 
     table {
@@ -226,8 +233,11 @@ dashboard "repository_detail" {
       column "html_url" {
         display = "none"
       }
+      column "repository_full_name" {
+        display = "none"
+      }
       column "Issue" {
-        href  = "/github_insights.dashboard.pull_request_detail?input.repository_full_name={{.repository_full_name | @uri}}&input.pull_request_id={{.'Issue' | @uri}}"
+        href = "{{.'html_url'}}"
       }
     }
   }
@@ -359,12 +369,13 @@ query "repository_dependabot_alert_details" {
   sql = <<-EOQ
     select
       security_advisory_summary as "Summary",
-      state as "State",
-      security_advisory_severity as "Severity",
+      initcap(state) as "State",
+      initcap(security_advisory_severity) as "Severity",
       security_advisory_cvss_score as "CVSS Score",
+      created_at as "Creation Date",
       dependency_package_name as "Dependency Package Name",
       dependency_manifest_path as "Dependency Manifest Path",
-      created_at as "Created At"
+      html_url
     from
       github_repository_dependabot_alert
     where
@@ -417,8 +428,8 @@ query "repository_recent_issues" {
     select
       issue_number as "Issue",
       title as "Title",
-      state as "State",
-      created_at as "Created At",
+      initcap(state) as "State",
+      created_at as "Creation Date",
       author_login as "Author",
       html_url
     from
@@ -468,7 +479,7 @@ query "repository_recent_pull_requests" {
       issue_number as "Issue",
       title as "Title",
       initcap(state) as "State",
-      created_at as "Created At",
+      created_at as "Creation Date",
       updated_at as "Updated At",
       author_login as "Author",
       changed_files as "Changed Files",
@@ -514,7 +525,7 @@ query "collaborators_for_repository" {
   param "repository_full_name" {}
 }
 
-query "commits_by_author" {
+query "commits_by_author_top_10" {
   sql = <<-EOQ
     select
       author_login as "Author",
@@ -527,7 +538,8 @@ query "commits_by_author" {
     group by 
       author_login
     order by 
-      total;
+      total desc
+    limit 10;
   EOQ
 
   param "repository_full_name" {}
