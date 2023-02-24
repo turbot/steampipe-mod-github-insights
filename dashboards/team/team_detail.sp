@@ -191,7 +191,7 @@ dashboard "team_detail" {
         column "html_url" {
           display = "none"
         }
-        column "ID" {
+        column "Member Login" {
           href = "{{.'html_url'}}"
         }
       }
@@ -235,7 +235,7 @@ dashboard "team_detail" {
         display = "none"
       }
 
-      column "ID" {
+      column "Repository Full Name" {
         href = "{{.'html_url'}}"
       }
     }
@@ -447,7 +447,6 @@ query "organizations_for_team" {
 query "team_member_details" {
   sql = <<-EOQ
     select
-      id as "ID",
       login as "Member Login",
       initcap(state) as "State",
       initcap(role) as "Permission",
@@ -466,7 +465,6 @@ query "team_member_details" {
 query "team_repository_details" {
   sql = <<-EOQ
     select
-      id as "ID",
       full_name as "Repository Full Name",
       language as "Language",
       initcap(visibility) as "Visibility",

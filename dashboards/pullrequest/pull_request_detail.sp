@@ -15,8 +15,8 @@ dashboard "pull_request_detail" {
 
   input "pull_request_id" {
     placeholder = "Select a pull request"
-    query = query.pull_request_input
-    width = 6
+    query       = query.pull_request_input
+    width       = 6
     args = {
       repository_full_name = self.input.repository_full_name.value
     }
@@ -123,15 +123,15 @@ dashboard "pull_request_detail" {
       node {
         base = node.branch
         args = {
-          branch_names           = with.base_ref_branches_for_pr.rows[*].branch_name
+          branch_names          = with.base_ref_branches_for_pr.rows[*].branch_name
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
-      
+
       node {
         base = node.branch
         args = {
-          branch_names           = with.head_ref_branches_for_pr.rows[*].branch_name
+          branch_names          = with.head_ref_branches_for_pr.rows[*].branch_name
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
@@ -148,14 +148,14 @@ dashboard "pull_request_detail" {
         base = edge.pull_request_to_branch
         args = {
           repository_full_names = [self.input.repository_full_name.value]
-          branch_names           = with.base_ref_branches_for_pr.rows[*].branch_name
+          branch_names          = with.base_ref_branches_for_pr.rows[*].branch_name
         }
       }
-      
+
       edge {
         base = edge.branch_to_pull_request
         args = {
-          branch_names           = with.head_ref_branches_for_pr.rows[*].branch_name
+          branch_names          = with.head_ref_branches_for_pr.rows[*].branch_name
           repository_full_names = [self.input.repository_full_name.value]
         }
       }
@@ -351,7 +351,6 @@ query "pull_request_labels" {
   sql = <<-EOQ
     select
       l ->> 'name' as "Name",
-      l ->> 'id' as "ID",
       l ->> 'default' as "Default",
       l ->> 'description' as "Description",
       l ->> 'color' as "Color",
@@ -398,7 +397,6 @@ query "pull_request_reviewers" {
   sql = <<-EOQ
     select
       u.login as "Login",
-      u.id as "ID",
       u.site_admin as "Site Admin",
       u.type as "Type",
       u.created_at as "Creation Date",

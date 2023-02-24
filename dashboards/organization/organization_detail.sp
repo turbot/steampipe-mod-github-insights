@@ -343,7 +343,6 @@ query "members_for_organization" {
 query "organization_overview" {
   sql = <<-EOQ
     select
-      id as "ID",
       name as "Name",
       login as "Organization Login",
       company as "Company",
