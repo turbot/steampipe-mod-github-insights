@@ -8,7 +8,6 @@ dashboard "organization_detail" {
   })
 
   input "organization_login" {
-    // title = "Select an organization:"
     placeholder = "Select an organization"
     query       = query.organization_input
     width       = 4
@@ -74,12 +73,18 @@ dashboard "organization_detail" {
 
   with "repositories_for_organization" {
     query = query.repositories_for_organization
-    args  = [self.input.organization_login.value]
+    args = {
+      organization_login = self.input.organization_login.value
+      slug               = with.teams_for_organization.rows[*].slug
+    }
   }
 
   with "members_for_organization" {
     query = query.members_for_organization
-    args  = [self.input.organization_login.value]
+    args = {
+      organization_login = self.input.organization_login.value
+      slug               = with.teams_for_organization.rows[*].slug
+    }
   }
 
   container {
@@ -105,6 +110,7 @@ dashboard "organization_detail" {
         base = node.team
         args = {
           organization_logins = [self.input.organization_login.value]
+          team_slugs          = with.teams_for_organization.rows[*].slug
         }
       }
 
@@ -124,14 +130,6 @@ dashboard "organization_detail" {
       }
 
       edge {
-        base = edge.team_to_repository
-        args = {
-          organization_logins = self.input.organization_login.value
-          team_slugs          = with.teams_for_organization.rows[*].slug
-        }
-      }
-
-      edge {
         base = edge.organization_to_team
         args = {
           organization_logins = [self.input.organization_login.value]
@@ -140,14 +138,6 @@ dashboard "organization_detail" {
 
       edge {
         base = edge.organization_to_user
-        args = {
-          organization_logins = self.input.organization_login.value
-          team_slugs          = with.teams_for_organization.rows[*].slug
-        }
-      }
-
-      edge {
-        base = edge.team_to_user
         args = {
           organization_logins = self.input.organization_login.value
           team_slugs          = with.teams_for_organization.rows[*].slug
@@ -278,13 +268,33 @@ query "organization_input" {
 
 query "repositories_for_organization" {
   sql = <<-EOQ
-    select 
-      full_name 
+    with non_team_repos as (
+      select
+        full_name
+      from 
+        github_my_repository 
+      where 
+        owner_login = $1
+      except
+      select
+        distinct full_name
+      from
+        github_team_repository
+      where
+        organization = $1
+        and slug = any($2)
+    )select
+      om.full_name
     from 
-      github_my_repository 
-    where 
-      owner_login = $1;
+      github_my_repository om,
+      non_team_repos nm
+    where
+      owner_login = $1
+      and nm.full_name = om.full_name
   EOQ
+
+  param "organization_login" {}
+  param "slug" {}
 }
 
 query "teams_for_organization" {
@@ -292,29 +302,42 @@ query "teams_for_organization" {
     select 
       slug 
     from 
-      github_my_team 
+      github_team 
     where 
-      organization_login = $1;
+      organization_login = $1
+      and parent is null;
   EOQ
 }
 
 query "members_for_organization" {
   sql = <<-EOQ
-    select
+    with non_team_members as (
+      select
+        login
+      from 
+        github_organization_member 
+      where 
+        organization = $1
+      except
+      select
+        distinct login
+      from
+        github_team_member
+      where
+        organization = $1
+        and slug = any($2)
+    )select
       om.login as member_login
-    from
-      github_my_organization as o
-    join github_organization_member om
-      on om.organization = o.login
-    join jsonb_array_elements(o.members) as m
-      on om.login = m.value ->> 'login'
+    from 
+      github_organization_member om,
+      non_team_members nm
     where
-      o.login = $1
-    order by
-      om.role, upper(om.login)
+      organization = $1
+      and nm.login = om.login
   EOQ
 
   param "organization_login" {}
+  param "slug" {}
 }
 
 query "organization_overview" {

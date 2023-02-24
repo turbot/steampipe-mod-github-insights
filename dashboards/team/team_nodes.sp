@@ -11,13 +11,16 @@ node "team" {
         'Permission', permission,
         'Privacy', privacy,
         'Repos Count', repos_count,
-        'Slug', slug
+        'Slug', slug,
+        'Full Name', organization_login || '/' || slug
       ) as properties
     from
       github_my_team
     where
       organization_login = any($1)
+      and slug = any($2);
   EOQ
 
   param "organization_logins" {}
+  param "team_slugs" {}
 }

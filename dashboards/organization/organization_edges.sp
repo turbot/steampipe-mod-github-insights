@@ -32,39 +32,6 @@ edge "organization_to_repository" {
   param "team_slugs" {}
 }
 
-edge "team_to_repository" {
-  title = "repository"
-
-  sql = <<-EOQ
-    with non_team_repos as (
-      select
-        full_name
-      from 
-        github_my_repository 
-      where 
-        owner_login = $1
-      except
-      select
-        distinct full_name
-      from
-        github_team_repository
-      where
-        organization = $1
-        and slug = any($2)
-    )select
-      slug as from_id,
-      full_name as to_id
-    from
-      github_team_repository
-    where
-      organization = $1
-      and slug = any($2)
-  EOQ
-
-  param "organization_logins" {}
-  param "team_slugs" {}
-}
-
 // select
 //       coalesce(t.id, t.organization_id) as from_id,
 //       r.id as to_id
@@ -86,7 +53,8 @@ edge "organization_to_team" {
     from
       github_team
     where
-      organization_login = any($1);
+      organization_login = any($1)
+      and parent is null;
   EOQ
 
   param "organization_logins" {}
@@ -120,39 +88,6 @@ edge "organization_to_user" {
     where
       organization = $1
       and nm.login = om.login
-  EOQ
-
-  param "organization_logins" {}
-  param "team_slugs" {}
-}
-
-edge "team_to_user" {
-  title = "member"
-
-  sql = <<-EOQ
-    with non_team_members as (
-      select
-        login
-      from 
-        github_organization_member 
-      where 
-        organization = $1
-      except
-      select
-        distinct login
-      from
-        github_team_member
-      where
-        organization = $1
-        and slug = any($2)
-    )select
-      slug as from_id,
-      login as to_id
-    from
-      github_team_member
-    where
-      organization = $1
-      and slug = any($2)
   EOQ
 
   param "organization_logins" {}
