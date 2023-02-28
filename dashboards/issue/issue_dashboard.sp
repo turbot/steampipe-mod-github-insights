@@ -8,7 +8,6 @@ dashboard "issue_dashboard" {
   })
 
   input "repository_full_name" {
-    // title = "Select a repository:"
     placeholder = "Select a repository"
     query       = query.repository_input
     width       = 4
@@ -98,11 +97,11 @@ dashboard "issue_dashboard" {
     }
 
     chart {
-      title = "Issues By Age"
-      type  = "area"
+      title    = "Issues by Age"
+      type     = "area"
       grouping = "stack"
-      width = 4
-      query = query.issue_by_age
+      width    = 4
+      query    = query.issue_by_age
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
@@ -117,22 +116,32 @@ dashboard "issue_dashboard" {
       }
 
     }
-  }
 
-  table {
-      title = "Issues - Last 7 Days"
-      width = 12
-      query = query.repository_recent_issues
+    chart {
+      title = "Issues by Lifetime (Open - Close)"
+      type  = "column"
+      width = 4
+      query = query.issue_by_lifetime
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
-      column "html_url" {
-        display = "none"
-      }
-      column "Issue" {
-        href = "{{.'html_url'}}"
-      }
     }
+  }
+
+  table {
+    title = "Issues - Last 7 Days"
+    width = 12
+    query = query.repository_recent_issues
+    args = {
+      repository_full_name = self.input.repository_full_name.value
+    }
+    column "html_url" {
+      display = "none"
+    }
+    column "Issue" {
+      href = "{{.'html_url'}}"
+    }
+  }
 }
 
 # Card Queries
@@ -246,6 +255,49 @@ query "issue_by_age" {
     group by
       state,
       creation_month;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "issue_by_lifetime" {
+  sql = <<-EOQ
+    with issue_lifetime as (
+      select
+        id,
+        title,
+        closed_at::date - created_at::date lifetime 
+      from 
+        github_issue
+      where
+        repository_full_name = $1
+        and state != 'open'
+      order by 
+        lifetime
+    ), issue_lifetime_group as (select
+      title,
+      lifetime,
+      case
+        when lifetime <= 1 then 1
+        when lifetime > 1 and lifetime <= 3 then 3
+        when lifetime > 3 and lifetime <= 7 then 7
+        when lifetime > 7 and lifetime <= 15 then 15
+        when lifetime > 15 and lifetime <= 30 then 30
+        when lifetime > 30 and lifetime <= 90 then 90
+        when lifetime > 90 and lifetime <= 365 then 365
+        when lifetime > 365 then 366
+      end as day_lifetime
+    from
+      issue_lifetime
+    ) select
+      case when day_lifetime = 366 then 'more' else day_lifetime || 'd' end as lifetime,
+      count(*) as total
+    from
+      issue_lifetime_group
+    group by
+      day_lifetime
+    order by
+      day_lifetime
   EOQ
 
   param "repository_full_name" {}
