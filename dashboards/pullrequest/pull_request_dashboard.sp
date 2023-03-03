@@ -125,31 +125,31 @@ dashboard "pullrequest_dashboard" {
 
       series closed {
         title = "Closed PRs"
-        color = "green"
+        color = "#0C457D"
       }
       series open {
         title = "Open PRs"
-        color = "red"
+        color = "#E8702B"
       }
     }
 
     chart {
-      title = "Pull Requests By Age"
-      type  = "area"
+      title    = "Pull Requests By Age"
+      type     = "area"
       grouping = "stack"
-      width = 4
-      query = query.pull_request_by_age
+      width    = 4
+      query    = query.pull_request_by_age
       args = {
         repository_full_name = self.input.repository_full_name.value
       }
 
       series closed {
         title = "Closed PRs"
-        color = "green"
+        color = "#0C457D"
       }
       series open {
         title = "Open PRs"
-        color = "red"
+        color = "#E8702B"
       }
 
     }
@@ -157,19 +157,19 @@ dashboard "pullrequest_dashboard" {
   }
 
   table {
-      title = "Pull Requests - Last 7 Days"
-      width = 12
-      query = query.repository_recent_pull_requests
-      args = {
-        repository_full_name = self.input.repository_full_name.value
-      }
-      column "html_url" {
-        display = "none"
-      }
-      column "Issue" {
-        href = "{{.'html_url'}}"
-      }
+    title = "Pull Requests - Last 7 Days"
+    width = 12
+    query = query.repository_recent_pull_requests
+    args = {
+      repository_full_name = self.input.repository_full_name.value
     }
+    column "html_url" {
+      display = "none"
+    }
+    column "Issue" {
+      href = "{{.'html_url'}}"
+    }
+  }
 }
 
 # Card Queries

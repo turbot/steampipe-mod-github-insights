@@ -59,11 +59,11 @@ dashboard "my_issue_dashboard" {
 
       series closed {
         title = "Closed Issues"
-        color = "green"
+        color = "#0C457D"
       }
       series open {
         title = "Open Issues"
-        color = "red"
+        color = "#E8702B"
       }
     }
 
@@ -75,11 +75,11 @@ dashboard "my_issue_dashboard" {
 
       series closed {
         title = "Closed Issues"
-        color = "green"
+        color = "#0C457D"
       }
       series open {
         title = "Open Issues"
-        color = "red"
+        color = "#E8702B"
       }
     }
 
@@ -92,12 +92,12 @@ dashboard "my_issue_dashboard" {
 
       series closed {
         title = "Closed Issues"
-        color = "green"
+        color = "#0C457D"
       }
 
       series open {
         title = "Open Issues"
-        color = "red"
+        color = "#E8702B"
       }
 
     }
