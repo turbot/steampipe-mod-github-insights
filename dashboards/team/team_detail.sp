@@ -213,7 +213,7 @@ dashboard "team_detail" {
       chart {
         title = "Repositories by Stargazers - Top 10"
         type  = "column"
-        width = 4
+        width = 6
         query = query.team_repository_by_stargazers_top_10
         args = {
           organization_team_slug = self.input.organization_team_slug_input.value
@@ -516,7 +516,7 @@ query "team_repository_by_stargazers_top_10" {
   sql = <<-EOQ
     select
       name,
-      stargazers_count
+      stargazers_count as "Stargazers"
     from
       github_team_repository
     where

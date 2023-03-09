@@ -87,15 +87,6 @@ dashboard "user_detail" {
         user_login = self.input.user_input.value
       }
 
-      // series closed {
-      //   title = "Closed Issues"
-      //   color = "#0C457D"
-      // }
-      // series open {
-      //   title = "Open Issues"
-      //   color = "#E8702B"
-      // }
-
     }
   }
 

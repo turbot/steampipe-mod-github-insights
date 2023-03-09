@@ -147,7 +147,7 @@ dashboard "repository_detail" {
     table {
       title = "Overview"
       type  = "line"
-      width = 2
+      width = 3
       query = query.repository_overview
       args = {
         full_name = self.input.repository_full_name.value
@@ -162,12 +162,12 @@ dashboard "repository_detail" {
 
     container {
 
-      width = 10
+      width = 9
 
       chart {
         title = "Commits by Author - Top 10"
         type  = "column"
-        width = 5
+        width = 12
         query = query.commits_by_author_top_10
         args = {
           repository_full_name = self.input.repository_full_name.value
@@ -175,11 +175,22 @@ dashboard "repository_detail" {
       }
 
       chart {
-        title = "Traffic Daily - Last 15 days"
+        title = "Traffic Daily Views - Last 15 days"
         type  = "line"
-        width = 7
+        width = 6
 
-        query = query.traffic_past_2week
+        query = query.traffic_view_past_2week
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Traffic Daily Clones - Last 15 days"
+        type  = "line"
+        width = 6
+
+        query = query.traffic_clone_past_2week
         args = {
           repository_full_name = self.input.repository_full_name.value
         }
@@ -191,7 +202,7 @@ dashboard "repository_detail" {
 
 
   container {
-  
+
     table {
       title = "Dependabot Alerts"
       width = 12
@@ -545,7 +556,7 @@ query "commits_by_author_top_10" {
   param "repository_full_name" {}
 }
 
-query "traffic_past_2week" {
+query "traffic_view_past_2week" {
   sql = <<-EOQ
     select 
       to_char(timestamp, 'DD-MONTH'), 
@@ -553,6 +564,23 @@ query "traffic_past_2week" {
       uniques as "Unique" 
     from 
       github_traffic_view_daily 
+    where 
+      repository_full_name = $1 
+    order by 
+      timestamp
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "traffic_clone_past_2week" {
+  sql = <<-EOQ
+    select 
+      to_char(timestamp, 'DD-MONTH'), 
+      count as "Total", 
+      uniques as "Unique" 
+    from 
+      github_traffic_clone_daily 
     where 
       repository_full_name = $1 
     order by 
