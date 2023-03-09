@@ -52,6 +52,25 @@ dashboard "my_issue_dashboard" {
     title = "Analysis"
 
     chart {
+      title    = "Issues By Age"
+      type     = "area"
+      grouping = "stack"
+      width    = 4
+      query    = query.my_issue_by_age
+
+      series closed {
+        title = "Closed Issues"
+        color = "#0C457D"
+      }
+
+      series open {
+        title = "Open Issues"
+        color = "#E8702B"
+      }
+
+    }
+
+    chart {
       title = "Issues by Tag"
       type  = "column"
       width = 4
@@ -81,25 +100,6 @@ dashboard "my_issue_dashboard" {
         title = "Open Issues"
         color = "#E8702B"
       }
-    }
-
-    chart {
-      title    = "Issues By Age"
-      type     = "area"
-      grouping = "stack"
-      width    = 4
-      query    = query.my_issue_by_age
-
-      series closed {
-        title = "Closed Issues"
-        color = "#0C457D"
-      }
-
-      series open {
-        title = "Open Issues"
-        color = "#E8702B"
-      }
-
     }
   }
 

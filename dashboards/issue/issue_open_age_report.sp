@@ -1,6 +1,6 @@
 dashboard "issue_open_report" {
 
-  title         = "GitHub Open Issue Age Report"
+  title         = "GitHub Open Issues Age Report"
   documentation = file("./dashboards/issue/docs/issue_open_age_report.md")
 
   tags = merge(local.issue_common_tags, {

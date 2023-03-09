@@ -16,15 +16,15 @@ dashboard "repository_dashboard" {
       width = 2
     }
     card {
-      query = query.repository_public_count
-      width = 2
-    }
-    card {
       query = query.repository_private_count
       width = 2
     }
 
     # Assessments
+    card {
+      query = query.repository_public_count
+      width = 2
+    }
     card {
       query = query.repository_public_pr_disabled_count
       width = 2
@@ -123,15 +123,24 @@ query "repository_count" {
   EOQ
 }
 
-query "repository_public_count" {
-  sql = <<-EOQ
-    select count(*) as "Public" from github_my_repository where visibility = 'public';
-  EOQ
-}
-
 query "repository_private_count" {
   sql = <<-EOQ
     select count(*) as "Private" from github_my_repository where visibility = 'private';
+  EOQ
+}
+
+query "repository_public_count" {
+  sql = <<-EOQ
+    select 
+      count(*) as "Public",
+      case
+        when count(*) > 0 then 'alert'
+        else 'ok'
+      end as type
+    from 
+      github_my_repository 
+    where 
+      visibility = 'public';
   EOQ
 }
 

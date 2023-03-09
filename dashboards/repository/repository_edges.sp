@@ -3,11 +3,10 @@ edge "repository_to_branch" {
 
   sql = <<-EOQ
     select
-      r.full_name as from_id,
-      b.name as to_id
+      repository_full_name as from_id,
+      name as to_id
     from
       github_branch as b
-      left join github_my_repository as r on r.full_name = b.repository_full_name
     where
       b.name = any($1)
       and b.repository_full_name = any($2)
@@ -22,11 +21,10 @@ edge "repository_to_pull_request" {
 
   sql = <<-EOQ
     select
-      r.full_name as from_id,
-      b.issue_number as to_id
+      repository_full_name as from_id,
+      issue_number as to_id
     from
       github_pull_request as b
-      left join github_my_repository as r on r.full_name = b.repository_full_name
     where
       b.issue_number = any($1)
       and b.repository_full_name = $2
@@ -58,11 +56,10 @@ edge "repository_to_external_collaborators" {
   sql = <<-EOQ
     select
       r.full_name as from_id,
-      u.login as to_id
+      l as to_id
     from
       github_my_repository as r,
       jsonb_array_elements_text(outside_collaborator_logins) as l
-      left join github_user as u on u.login = l
     where
       r.full_name = any($1)
   EOQ

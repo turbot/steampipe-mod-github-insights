@@ -197,7 +197,7 @@ dashboard "team_detail" {
       }
     }
 
-    container {
+    /* container {
       title = "Analysis"
 
       chart {
@@ -219,7 +219,7 @@ dashboard "team_detail" {
           organization_team_slug = self.input.organization_team_slug_input.value
         }
       }
-    }
+    } */
   }
 
   container {

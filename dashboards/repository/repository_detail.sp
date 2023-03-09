@@ -18,7 +18,7 @@ dashboard "repository_detail" {
 
     card {
       width = 2
-      query = query.repository_visibility
+      query = query.repository_stargazers
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -26,7 +26,7 @@ dashboard "repository_detail" {
 
     card {
       width = 2
-      query = query.repository_stargazers
+      query = query.repository_subscribers
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -42,7 +42,7 @@ dashboard "repository_detail" {
 
     card {
       width = 2
-      query = query.repository_subscribers
+      query = query.repository_visibility
       args = {
         full_name = self.input.repository_full_name.value
       }
@@ -196,6 +196,28 @@ dashboard "repository_detail" {
         }
       }
 
+      chart {
+        title = "Release History - 1 Year"
+        type  = "line"
+        width = 6
+
+        query = query.release_by_age
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
+      chart {
+        title = "Stargazer History - 1 Year"
+        type  = "line"
+        width = 6
+
+        query = query.stargazer_by_age
+        args = {
+          repository_full_name = self.input.repository_full_name.value
+        }
+      }
+
     }
 
   }
@@ -270,7 +292,11 @@ query "repository_visibility" {
   sql = <<-EOQ
     select
       'Visibility' as "label",
-      initcap(visibility) as "value"
+      initcap(visibility) as "value",
+      case
+        when visibility = 'public' then 'alert'
+        else 'ok'
+      end as type
     from
       github_my_repository
     where
@@ -610,4 +636,46 @@ query "pull_requests_by_author_login_by_days" {
 
   param "repository_full_name" {}
   param "time" {}
+}
+
+query "release_by_age" {
+  sql = <<-EOQ
+    select
+      to_char(published_at,
+          'YYYY-MM') as creation_month,
+      count(*) as total
+    from
+      github_release
+    where
+      repository_full_name = $1
+      and not prerelease
+      and not draft
+    group by
+      creation_month
+    order by
+      creation_month desc
+    limit 12;
+  EOQ
+
+  param "repository_full_name" {}
+}
+
+query "stargazer_by_age" {
+  sql = <<-EOQ
+    select
+      to_char(starred_at,
+          'YYYY-MM') as creation_month,
+      count(*) as total
+    from
+      github_stargazer
+    where
+      repository_full_name = $1
+    group by
+      creation_month
+    order by
+      creation_month desc
+    limit 12;
+  EOQ
+
+  param "repository_full_name" {}
 }
