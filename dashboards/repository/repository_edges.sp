@@ -41,14 +41,12 @@ edge "repository_to_tag" {
 
   sql = <<-EOQ
     select
-      r.full_name as from_id,
-      t.name as to_id
+      repository_full_name as from_id,
+      name as to_id
     from
-      github_my_repository as r,
-      github_tag t
+      github_tag
     where
-      r.full_name = t.repository_full_name
-      and t.repository_full_name = any($1)
+      repository_full_name = any($1);
   EOQ
 
   param "repository_full_names" {}

@@ -1,6 +1,6 @@
 dashboard "pull_request_detail" {
   title         = "GitHub Pull Request Detail"
-  documentation = file("./dashboards/pullrequest/docs/pull_request_detail.md")
+  documentation = file("./dashboards/pull_request/docs/pull_request_detail.md")
 
   tags = merge(local.pull_request_common_tags, {
     type = "Detail"

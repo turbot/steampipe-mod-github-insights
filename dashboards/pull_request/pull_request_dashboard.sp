@@ -1,7 +1,7 @@
-dashboard "pullrequest_dashboard" {
+dashboard "pull_request_dashboard" {
 
   title         = "GitHub Pull Request Dashboard"
-  documentation = file("./dashboards/pullrequest/docs/pull_request_dashboard.md")
+  documentation = file("./dashboards/pull_request/docs/pull_request_dashboard.md")
 
   tags = merge(local.pull_request_common_tags, {
     type = "Dashboard"

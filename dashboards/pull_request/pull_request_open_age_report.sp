@@ -1,9 +1,9 @@
-dashboard "issue_open_report" {
+dashboard "pull_request_open_report" {
 
-  title         = "GitHub Open Issue Age Report"
-  documentation = file("./dashboards/issue/docs/issue_open_age_report.md")
+  title         = "GitHub Open Pull Request Age Report"
+  documentation = file("./dashboards/pull_request/docs/pull_request_open_age_report.md")
 
-  tags = merge(local.issue_common_tags, {
+  tags = merge(local.pull_request_common_tags, {
     type = "Report"
   })
 
@@ -18,7 +18,7 @@ dashboard "issue_open_report" {
 
     card {
       width = 2
-      query = query.open_issues_count
+      query = query.open_pull_requests_count
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -27,7 +27,7 @@ dashboard "issue_open_report" {
     card {
       type  = "info"
       width = 2
-      query = query.open_issues_30_days_count
+      query = query.open_pull_requests_30_days_count
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -36,7 +36,7 @@ dashboard "issue_open_report" {
     card {
       type  = "info"
       width = 2
-      query = query.open_issues_30_90_days_count
+      query = query.open_pull_requests_30_90_days_count
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -45,7 +45,7 @@ dashboard "issue_open_report" {
     card {
       width = 2
       type  = "info"
-      query = query.open_issues_90_365_days_count
+      query = query.open_pull_requests_90_365_days_count
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -54,7 +54,7 @@ dashboard "issue_open_report" {
     card {
       width = 2
       type  = "info"
-      query = query.open_issues_1_year_count
+      query = query.open_pull_requests_1_year_count
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -64,8 +64,8 @@ dashboard "issue_open_report" {
 
   container {
     table {
-      title = "Open Issues"
-      query = query.open_issues
+      title = "Open Pull Requests"
+      query = query.open_pull_requests
       args = {
         repository_full_names = self.input.repository_full_names.value
       }
@@ -80,14 +80,14 @@ dashboard "issue_open_report" {
 }
 
 // TODO: Format and uncomment commented columns
-query "open_issues" {
+query "open_pull_requests" {
   sql = <<-EOQ
-    with issue_tags as (
+    with pull_request_tags as (
       select
         issue_number,
         string_agg(t, ', ') as tags
       from
-        github_issue,
+        github_pull_request,
         jsonb_object_keys(tags) as t
       where
         repository_full_name = any(string_to_array($1, ','))
@@ -111,8 +111,8 @@ query "open_issues" {
       html_url,
       t.tags as "Tags"
     from
-      github_issue i
-      left join issue_tags as t 
+      github_pull_request i
+      left join pull_request_tags as t 
         on i.issue_number = t.issue_number
     where
       repository_full_name = any(string_to_array($1, ','))
@@ -125,13 +125,13 @@ query "open_issues" {
 }
 
 
-query "open_issues_count" {
+query "open_pull_requests_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      'Open Issues' as label
+      'Open Pull Requests' as label
     from
-      github_issue
+      github_pull_request
     where
       repository_full_name = any(string_to_array($1, ','))
       and state = 'open';
@@ -140,13 +140,13 @@ query "open_issues_count" {
   param "repository_full_names" {}
 }
 
-query "open_issues_30_days_count" {
+query "open_pull_requests_30_days_count" {
   sql = <<-EOQ
     select
       count(*) as value,
       '1-30 Days' as label
     from
-      github_issue
+      github_pull_request
     where
       repository_full_name = any(string_to_array($1, ','))
       and state = 'open'
@@ -157,13 +157,13 @@ query "open_issues_30_days_count" {
   param "repository_full_names" {}
 }
 
-query "open_issues_30_90_days_count" {
+query "open_pull_requests_30_90_days_count" {
   sql = <<-EOQ
     select
       count(*) as value,
       '30-90 Days' as label
     from
-      github_issue
+      github_pull_request
     where
       repository_full_name = any(string_to_array($1, ','))
       and state = 'open'
@@ -173,13 +173,13 @@ query "open_issues_30_90_days_count" {
   param "repository_full_names" {}
 }
 
-query "open_issues_90_365_days_count" {
+query "open_pull_requests_90_365_days_count" {
   sql = <<-EOQ
     select
       count(*) as value,
       '90-365 Days' as label
     from
-      github_issue
+      github_pull_request
     where
       repository_full_name = any(string_to_array($1, ','))
       and state = 'open'
@@ -189,13 +189,13 @@ query "open_issues_90_365_days_count" {
   param "repository_full_names" {}
 }
 
-query "open_issues_1_year_count" {
+query "open_pull_requests_1_year_count" {
   sql = <<-EOQ
     select
       count(*) as value,
       '> 1 Year' as label
     from
-      github_issue
+      github_pull_request
     where
       repository_full_name = any(string_to_array($1, ','))
       and state = 'open'
