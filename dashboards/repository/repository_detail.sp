@@ -448,7 +448,7 @@ query "repository_overview" {
       clone_url as "HTTP Clone URL",
       git_url as "SSH Clone URL",
       html_url,
-      case when pb.protected_branches is null then pb.protected_branches::text else 'None' end as "Protected Branches"
+      case when pb.protected_branches is not null then pb.protected_branches::text else 'None' end as "Protected Branches"
     from
       github_my_repository r,
       protected_branch_array pb

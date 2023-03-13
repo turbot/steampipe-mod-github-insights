@@ -154,6 +154,7 @@ dashboard "team_detail" {
         base = edge.team_to_team
         args = {
           organization_logins = with.organizations_for_team.rows[*].organization_login
+          team_slugs          = with.current_team.rows[*].slug
         }
       }
 
@@ -161,7 +162,7 @@ dashboard "team_detail" {
         base = edge.team_to_user
         args = {
           organization_logins = with.organizations_for_team.rows[0].organization_login
-          team_slugs          = with.current_team.rows[*].slug
+          // team_slugs          = with.current_team.rows[*].slug
         }
       }
     }
@@ -330,12 +331,7 @@ query "team_overview" {
       name as "Name",
       slug as "Team Slug",
       description as "Description",
-      organization_login as "Organization",
-      case when
-        parent is null then 'None'
-        else parent ->> 'slug' 
-      end as "Parent Team",
-      permission as "Permission"
+      organization_login as "Organization"
     from
       github_team
     where
@@ -380,13 +376,26 @@ query "parent_organizations_for_team" {
 
 query "child_teams_for_team" {
   sql = <<-EOQ
-    select
+    with recursive subordinates as (
+      select
+        slug,
+        parent ->> 'slug' as from_id
+      from
+        github_team
+      where
+        organization_login = split_part($1, '/', 1)
+        and slug = split_part($1, '/', 2)
+      union
+        select
+          t.slug,
+          t.parent ->> 'slug' as from_id
+        from
+          github_team t
+        inner join subordinates s on s.slug = t.parent ->> 'slug'
+    )select
       slug
     from
-      github_team
-    where
-      organization = split_part($1, '/', 1)
-      and parent ->> 'slug' = split_part($1, '/', 2);
+      subordinates;
   EOQ
 
   param "organization_team_slug" {}
@@ -394,13 +403,29 @@ query "child_teams_for_team" {
 
 query "members_for_team" {
   sql = <<-EOQ
-    select
-      login
+    with recursive subordinates as (
+      select
+        slug,
+        parent ->> 'slug' as from_id
+      from
+        github_team
+      where
+        organization_login = split_part($1, '/', 1)
+        and slug = split_part($1, '/', 2)
+      union
+        select
+          t.slug,
+          t.parent ->> 'slug' as from_id
+        from
+          github_team t
+        inner join subordinates s on s.slug = t.parent ->> 'slug'
+    ) select
+      distinct tm.login
     from
-      github_team_member
+      github_team_member as tm
     where
-      organization = split_part($1, '/', 1)
-      and slug = split_part($1, '/', 2);
+      tm.organization = split_part($1, '/', 1)
+      and tm.slug in (select slug from subordinates)
   EOQ
 
   param "organization_team_slug" {}
@@ -466,13 +491,12 @@ query "team_repository_details" {
   sql = <<-EOQ
     select
       full_name as "Repository Full Name",
-      language as "Language",
       initcap(visibility) as "Visibility",
       created_at as "Creation Date",
       now()::date - updated_at::date as "Days Since Last Update",
       open_issues_count as "Open Issues",
       stargazers_count as "Stargazers",
-      license_name as "License Name",
+      permissions as "Permissions",
       html_url
     from
       github_team_repository
