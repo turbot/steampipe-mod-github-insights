@@ -1,6 +1,6 @@
 dashboard "repository_security_advisory_report" {
   title = "GitHub Repositories Security Advisory Report"
-  #documentation = file("./dashboards/repository/docs/repository_security_advisory_report.md")
+  documentation = file("./dashboards/repository/docs/repository_security_advisory_report.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Report"

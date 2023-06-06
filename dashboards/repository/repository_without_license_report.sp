@@ -1,6 +1,6 @@
 dashboard "repository_without_license_report" {
   title = "GitHub Repositories Without License Report"
-  #documentation = file("./dashboards/repository/docs/repository_unlicensed_report.md")
+  documentation = file("./dashboards/repository/docs/repository_unlicensed_report.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Report"

@@ -1,6 +1,6 @@
 dashboard "organization_security_advisory_report" {
   title = "GitHub Organization Security Advisory Report"
-  #documentation = file("./dashboards/organization/docs/organization_security_advisory_report.md")
+  documentation = file("./dashboards/organization/docs/organization_security_advisory_report.md")
 
   tags = merge(local.organization_common_tags, {
     type = "Report"

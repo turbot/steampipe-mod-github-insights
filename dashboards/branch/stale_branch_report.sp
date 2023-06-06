@@ -1,6 +1,6 @@
 dashboard "stale_branch_report" {
   title = "GitHub Stale Branch Report"
-  #documentation = file("./dashboards/branch/docs/stale_branch_report.md")
+  documentation = file("./dashboards/branch/docs/stale_branch_report.md")
 
   tags = merge(local.branch_common_tags, {
     type = "Report"
