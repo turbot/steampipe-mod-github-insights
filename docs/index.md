@@ -1,8 +1,12 @@
-# GitHub Insights Mod for Steampipe
+---
+repository: "https://github.com/turbot/steampipe-mod-github-insights"
+---
 
-A GitHub dashboarding tool that can be used to view dashboards and reports across all of your GitHub repositories.
+# GitHub Insights Mod
 
-<!-- ![image](https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/github_dashboard.png) -->
+Create dashboards and reports for your GitHub repository resources using Steampipe.
+
+<!-- <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/github_dashboard.png" width="50%" type="thumbnail"/> -->
 
 ## Overview
 
@@ -12,6 +16,18 @@ Dashboards can help answer questions like:
 - How many branches do I have?
 - What are the PRs in a repository?
 - What are the branch protections rules in a repository?
+
+## References
+
+[GitHub](https://www.github.com/) is a provider of Internet hosting for software development and version control using Git. It offers the distributed version control and source code management (SCM) functionality of Git, plus its own features.
+
+[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+
+[Steampipe Mods](https://steampipe.io/docs/reference/mod-resources#mod) are collections of `named queries`, codified `controls` that can be used to test current configuration of your cloud resources against a desired configuration, and `dashboards` that organize and display key pieces of information.
+
+## Documentation
+
+- **[Dashboards →](https://hub.steampipe.io/mods/turbot/github_insights/dashboards)**
 
 ## Getting started
 
