@@ -26,6 +26,11 @@ dashboard "repository_security_advisory_report" {
       query = query.repository_security_advisory_high_count
       width = 2
     }
+
+    card {
+      query = query.repository_security_advisory_critical_count
+      width = 2
+    }
   }
 
   container {
@@ -41,11 +46,15 @@ dashboard "repository_security_advisory_report" {
         display = "none"
       }
 
+      column "weight" {
+        display = "none"
+      }
+
       column "Repository" {
         href = "{{.'url'}}"
       }
 
-      column "CVE" {
+      column "Advisory" {
         href = "{{.'advisory_url'}}"
       } 
     }
@@ -71,7 +80,7 @@ query "repository_security_advisory_count" {
 query "repository_security_advisory_low_count" {
   sql = <<-EOQ
     select
-      'Low Severity' as label,
+      'Low' as label,
       count(*) as value
     from
       github_my_repository r
@@ -88,7 +97,7 @@ query "repository_security_advisory_low_count" {
 query "repository_security_advisory_medium_count" {
   sql = <<-EOQ
     select
-      'Medium Severity' as label,
+      'Medium' as label,
       count(*) as value,
       case
         when count(*) > 0 then 'alert'
@@ -109,7 +118,7 @@ query "repository_security_advisory_medium_count" {
 query "repository_security_advisory_high_count" {
   sql = <<-EOQ
     select
-      'High Severity' as label,
+      'High' as label,
       count(*) as value,
       case
         when count(*) > 0 then 'alert'
@@ -127,19 +136,15 @@ query "repository_security_advisory_high_count" {
   EOQ
 }
 
-query "repository_security_advisory_table" {
+query "repository_security_advisory_critical_count" {
   sql = <<-EOQ
     select
-      r.name_with_owner as "Repository",
-      a.state as "State",
-      a.security_advisory_cve_id as "CVE",
-      a.security_advisory_severity as "Severity",
-      a.dependency_package_name as "Package",
-      a.dependency_scope as "Scope",
-      a.created_at as "Alert Created",
-      age(now()::date, a.created_at::date) as "Alert Age",
-      a.html_url as "advisory_url",
-      r.url
+      'Critical' as label,
+      count(*) as value,
+      case
+        when count(*) > 0 then 'alert'
+        else 'ok'
+      end as type
     from
       github_my_repository r
     join
@@ -147,6 +152,43 @@ query "repository_security_advisory_table" {
     on
       r.name_with_owner = a.repository_full_name
     where
-      a.state = 'open';
+      a.state = 'open'
+    and a.security_advisory_severity = 'critical';
+  EOQ
+}
+
+query "repository_security_advisory_table" {
+  sql = <<-EOQ
+    select
+      a.security_advisory_severity as "Severity",
+      r.name_with_owner as "Repository",
+      a.security_advisory_ghsa_id as "Advisory",
+      case 
+        when a.security_advisory_cve_id is null then 'Not Assigned.'
+        else a.security_advisory_cve_id
+      end as "CVE",
+      a.dependency_package_name as "Package",
+      a.dependency_scope as "Scope",
+      a.created_at as "Alert Created",
+      now()::date - a.created_at::date as "Age in Days",
+      a.html_url as "advisory_url",
+      r.url,
+      case 
+        when a.security_advisory_severity = 'critical' then 1
+        when a.security_advisory_severity = 'high' then 2
+        when a.security_advisory_severity = 'medium' then 3
+        when a.security_advisory_severity = 'low' then 4
+        else 5
+      end as weight
+    from
+      github_my_repository r
+    join
+      github_repository_dependabot_alert a
+    on
+      r.name_with_owner = a.repository_full_name
+    where
+      a.state = 'open'
+    order by
+      weight;
   EOQ
 }
