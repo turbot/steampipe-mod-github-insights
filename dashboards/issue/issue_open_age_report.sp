@@ -78,8 +78,7 @@ query "open_issues_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      'Open Issues' as label,
-      'info' as type
+      'Open Issues' as label
     from
       github_issue
     where
@@ -94,8 +93,7 @@ query "open_issues_last_30_days_count" {
   sql = <<-EOQ
     select
       'Last 30 Days' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_issue
     where
@@ -112,8 +110,7 @@ query "open_issues_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_issue
     where

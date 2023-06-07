@@ -46,8 +46,7 @@ query "branches_total_count" {
   sql = <<-EOQ
     select
       'Total Branches' as label,
-      count(*) as value,
-      'info' type
+      count(*) as value
     from
       github_my_repository r
     join

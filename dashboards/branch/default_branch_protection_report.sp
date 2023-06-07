@@ -38,8 +38,7 @@ query "default_branch_protection_enabled_count" {
   sql = <<-EOQ
     select
       'Protected' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_my_repository
     where

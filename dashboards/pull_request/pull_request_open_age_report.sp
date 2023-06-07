@@ -78,8 +78,7 @@ query "open_pull_requests_count" {
   sql = <<-EOQ
     select
       count(*) as value,
-      'Open PRs' as label,
-      'info' as type
+      'Open PRs' as label
     from
       github_pull_request
     where
@@ -94,8 +93,7 @@ query "open_pull_requests_last_30_days_count" {
   sql = <<-EOQ
     select
       'Last 30 Days' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_pull_request
     where
@@ -112,8 +110,7 @@ query "open_pull_requests_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_pull_request
     where

@@ -43,8 +43,7 @@ query "organization_paid_plan_seats_count" {
   sql = <<-EOQ
     select
       'Paid Plan Seats' as label,
-      sum(plan_seats) as value,
-      'info' as type
+      sum(plan_seats) as value
     from
       github_my_organization
     where plan_name <> 'free';
@@ -55,8 +54,7 @@ query "organization_paid_plan_seats_used_count" {
   sql = <<-EOQ
     select
       'Paid Plan Used Seats' as label,
-      sum(plan_filled_seats) as value,
-      'info' as type
+      sum(plan_filled_seats) as value
     from
       github_my_organization
     where plan_name <> 'free';

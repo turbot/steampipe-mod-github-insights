@@ -56,8 +56,7 @@ query "organization_security_advisory_count" {
   sql = <<-EOQ
     select
       'Open Advisories' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_my_organization o
     join
@@ -73,8 +72,7 @@ query "organization_security_advisory_low_count" {
   sql = <<-EOQ
     select
       'Low Severity' as label,
-      count(*) as value,
-      'info' as type
+      count(*) as value
     from
       github_my_organization o
     join
