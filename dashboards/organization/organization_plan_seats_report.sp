@@ -8,16 +8,6 @@ dashboard "organization_plan_seats_report" {
 
   container {
     card {
-      query = query.organization_paid_plan_seats_count
-      width = 2
-    }
-
-    card {
-      query = query.organization_paid_plan_seats_used_count
-      width = 2
-    }
-
-    card {
       query = query.organization_paid_plan_seats_unused_count
       width = 2
     }
@@ -37,28 +27,6 @@ dashboard "organization_plan_seats_report" {
       }
     }
   }
-}
-
-query "organization_paid_plan_seats_count" {
-  sql = <<-EOQ
-    select
-      'Paid Plan Seats' as label,
-      sum(plan_seats) as value
-    from
-      github_my_organization
-    where plan_name <> 'free';
-  EOQ
-}
-
-query "organization_paid_plan_seats_used_count" {
-  sql = <<-EOQ
-    select
-      'Paid Plan Used Seats' as label,
-      sum(plan_filled_seats) as value
-    from
-      github_my_organization
-    where plan_name <> 'free';
-  EOQ
 }
 
 query "organization_paid_plan_seats_unused_count" {
