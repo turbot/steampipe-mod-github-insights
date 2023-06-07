@@ -1,17 +1,12 @@
-dashboard "repository_without_license_report" {
-  title = "GitHub Repositories Without License Report"
-  documentation = file("./dashboards/repository/docs/repository_unlicensed_report.md")
+dashboard "repository_license_report" {
+  title = "GitHub Repository License Report"
+  documentation = file("./dashboards/repository/docs/repository_license_report.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Report"
   })
 
   container {
-    card {
-      query = query.repository_count
-      width = 2
-    }
-
     card {
       query = query.repositories_without_license_count
       width = 2
@@ -20,7 +15,7 @@ dashboard "repository_without_license_report" {
 
   container {
     table {
-      title = "Repositories without a license"
+      title = "Repository Licenses"
       query = query.repositories_without_license_table
 
       column "url" {
@@ -54,11 +49,12 @@ query "repositories_without_license_table" {
   sql = <<-EOQ
     select
       name_with_owner as "Repository",
+      case
+        when license_info is null then 'Not Set'
+        else license_info ->> 'name'
+      end as "License",
       url
     from
-      github_my_repository
-    where
-      license_info is null;
+      github_my_repository;
   EOQ
 }
-
