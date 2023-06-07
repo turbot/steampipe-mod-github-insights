@@ -67,8 +67,16 @@ dashboard "pull_request_open_age_report" {
         display = "none"
       }
 
-      column "Number" {
+      column "author_url" {
+        display = "none"
+      }
+
+      column "PR" {
         href = "{{.'url'}}"
+      }
+
+      column "Author" {
+        href = "{{.'author_url'}}"
       }
     }
   }
@@ -129,7 +137,7 @@ query "open_pull_requests_90_365_days_count" {
       count(*) as value,
       case
         when count(*) >= 1 then 'alert'
-        else 'info'
+        else 'ok'
       end as type
     from
       github_pull_request
@@ -149,7 +157,7 @@ query "open_pull_requests_1_year_count" {
       count(*) as value,
       case
         when count(*) >= 1 then 'alert'
-        else 'info'
+        else 'ok'
       end as type
     from
       github_pull_request
@@ -165,21 +173,17 @@ query "open_pull_requests_1_year_count" {
 query "open_pull_requests_table" {
   sql = <<-EOQ
     select
-      number as "Number",
-      substring(title for 100) as "Title",
+      '#' || number || ' ' || title as "PR",
       repository_full_name as "Repository",
       now()::date - created_at::date as "Age in Days",
       now()::date - updated_at::date as "Days Since Last Update",
       mergeable as "Mergeable State",
+      author ->> 'login' as "Author",
+      author ->> 'url' as "author_url",
       case 
         when author_association = 'NONE' then 'External' 
         else initcap(author_association) 
       end as "Author Association",
-      case
-        when assignees_total_count = 0 then false
-        else true
-      end as "Is Assigned",
-      assignees_total_count as "Assignees",
       url
     from
       github_pull_request
