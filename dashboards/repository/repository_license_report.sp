@@ -49,10 +49,7 @@ query "repositories_without_license_table" {
   sql = <<-EOQ
     select
       name_with_owner as "Repository",
-      case
-        when license_info is null then 'Not Set'
-        else license_info ->> 'name'
-      end as "License",
+      license_info ->> 'name' as "License",
       url
     from
       github_my_repository;

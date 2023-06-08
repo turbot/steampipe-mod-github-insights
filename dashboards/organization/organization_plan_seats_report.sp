@@ -32,7 +32,7 @@ dashboard "organization_plan_seats_report" {
 query "organization_paid_plan_seats_unused_count" {
   sql = <<-EOQ
     select
-      'Paid Plan Used Seats' as label,
+      'Umused Plan Seats' as label,
       sum(plan_seats) - sum(plan_filled_seats) as value,
       case
         when (sum(plan_seats) - sum(plan_filled_seats)) > 0 then 'alert'
@@ -49,12 +49,11 @@ query "organization_plan_seats_table" {
     select
       login as "Organization",
       plan_name as "Plan Name",
-      plan_seats as "Plan Seats",
-      plan_filled_seats as "Used Seats",
+      plan_filled_seats || ' / ' ||
       case
-        when (plan_seats - plan_filled_seats) < 0 then 0
-        else (plan_seats - plan_filled_seats)
-      end as "Available Seats",
+        when plan_name = 'free' then 'n/a'
+        else plan_seats::text
+      end as "Used Seats",
       url
     from
       github_my_organization;

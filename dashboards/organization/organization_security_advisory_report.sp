@@ -160,13 +160,10 @@ query "organization_security_advisory_critical_count" {
 query "organization_security_advisory_table" {
   sql = <<-EOQ
     select
-      a.security_advisory_severity as "Severity",
       o.login as "Organization",
-      a.security_advisory_ghsa_id as "Advisory",
-      case 
-        when a.security_advisory_cve_id is null then 'Not Assigned.'
-        else a.security_advisory_cve_id
-      end as "CVE",
+      a.security_advisory_summary as "Advisory",
+      a.security_advisory_severity as "Severity",
+      a.security_advisory_cve_id as "CVE",
       a.dependency_package_name as "Package",
       a.dependency_scope as "Scope",
       a.created_at as "Alert Created",

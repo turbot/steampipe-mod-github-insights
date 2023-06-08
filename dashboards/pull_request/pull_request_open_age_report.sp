@@ -1,57 +1,41 @@
 dashboard "pull_request_open_age_report" {
-  title = "GitHub Open Pull Requests Age Report"
+  title = "GitHub Open Pull Request Age Report"
   documentation = file("./dashboards/pull_request/docs/pull_request_open_age_report.md")
 
   tags = merge(local.pull_request_common_tags, {
     type = "Report"
   })
 
-  input "repositories" {
-    placeholder = "Select repositories"
-    type        = "multicombo"
-    query       = query.repository_input
-    width       = 4
-  }
-
   container {
     card {
       query = query.open_pull_requests_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
-      query = query.open_pull_requests_last_30_days_count
+      query = query.open_pull_requests_24_hours_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
+    }
+
+    card {
+      query = query.open_pull_requests_30_days_count
+      width = 2
     }
 
     card {
       query = query.open_pull_requests_30_90_days_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
       query = query.open_pull_requests_90_365_days_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
       query = query.open_pull_requests_1_year_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
+
     }
   }
 
@@ -59,9 +43,6 @@ dashboard "pull_request_open_age_report" {
     table {
       title = "Open Pull Requests"
       query = query.open_pull_requests_table
-      args  = {
-        repositories = self.input.repositories
-      }
 
       column "url" {
         display = "none"
@@ -71,12 +52,20 @@ dashboard "pull_request_open_age_report" {
         display = "none"
       }
 
+      column "repo_url" {
+        display = "none"
+      }
+
       column "PR" {
         href = "{{.'url'}}"
       }
 
       column "Author" {
         href = "{{.'author_url'}}"
+      }
+
+      column "Repository" {
+        href = "{{.'repo_url'}}"
       }
     }
   }
@@ -88,86 +77,104 @@ query "open_pull_requests_count" {
       count(*) as value,
       'Open PRs' as label
     from
-      github_pull_request
+      github_my_repository r
+    join
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN';
+      p.state = 'OPEN';
   EOQ
-
-  param "repositories" {}
 }
 
-query "open_pull_requests_last_30_days_count" {
+query "open_pull_requests_24_hours_count" {
   sql = <<-EOQ
     select
-      'Last 30 Days' as label,
-      count(*) as value
+      '< 24 Hours' as label,
+      count(p.*) as value
     from
-      github_pull_request
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and (now()::date - created_at::date) <= 30
-      and created_at between symmetric now() - '0 days' :: interval and now() - '30 days' :: interval;
+      p.state = 'OPEN'
+    and 
+      p.created_at > now() - '1 days'::interval;
   EOQ
+}
 
-  param "repositories" {}
+query "open_pull_requests_30_days_count" {
+  sql = <<-EOQ
+    select
+      '1-30 Days' as label,
+      count(p.*) as value
+    from
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
+    where
+      p.state = 'OPEN'
+    and 
+      p.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
+  EOQ
 }
 
 query "open_pull_requests_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
-      count(*) as value
+      count(p.*) as value
     from
-      github_pull_request
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
+      p.state = 'OPEN'
+    and 
+      p.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_pull_requests_90_365_days_count" {
   sql = <<-EOQ
     select
       '90-365 Days' as label,
-      count(*) as value,
-      case
-        when count(*) >= 1 then 'alert'
-        else 'ok'
-      end as type
+      count(p.*) as value
     from
-      github_pull_request
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
+      p.state = 'OPEN'
+    and 
+      p.created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_pull_requests_1_year_count" {
   sql = <<-EOQ
     select
       '> 1 Year' as label,
-      count(*) as value,
-      case
-        when count(*) >= 1 then 'alert'
-        else 'ok'
-      end as type
+      count(p.*) as value
     from
-      github_pull_request
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at <= now() - '1 year' :: interval;
+      p.state = 'OPEN'
+    and 
+      p.created_at <= now() - '1 year' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_pull_requests_table" {
@@ -175,8 +182,8 @@ query "open_pull_requests_table" {
     select
       '#' || number || ' ' || title as "PR",
       repository_full_name as "Repository",
-      now()::date - created_at::date as "Age in Days",
-      now()::date - updated_at::date as "Days Since Last Update",
+      now()::date - p.created_at::date as "Age in Days",
+      now()::date - p.updated_at::date as "Days Since Last Update",
       mergeable as "Mergeable State",
       author ->> 'login' as "Author",
       author ->> 'url' as "author_url",
@@ -184,15 +191,17 @@ query "open_pull_requests_table" {
         when author_association = 'NONE' then 'External' 
         else initcap(author_association) 
       end as "Author Association",
-      url
+      p.url,
+      r.url as repo_url
     from
-      github_pull_request
+      github_my_repository r
+    join 
+      github_pull_request p
+    on 
+      p.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
+      p.state = 'OPEN'
     order by
       "Age in Days" desc
   EOQ
-
-  param "repositories" {}
 }

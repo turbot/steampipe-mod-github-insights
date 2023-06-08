@@ -8,6 +8,11 @@ dashboard "default_branch_protection_report" {
 
   container {
     card {
+      query = query.repository_count
+      width = 2
+    }
+
+    card {
       query = query.default_branch_protection_enabled_count
       width = 2
     }
@@ -49,7 +54,7 @@ query "default_branch_protection_enabled_count" {
 query "default_branch_protection_disabled_unverifiable_count" {
   sql = <<-EOQ
     select
-      'Unprotected/Unverifiable' as label,
+      'Unknown' as label,
       count(*) as value,
       case
         when count(*) > 0 then 'alert'
@@ -68,8 +73,8 @@ query "default_branch_protection_table" {
       name_with_owner as "Repository",
       (default_branch_ref ->> 'name') as "Default Branch",
       case
-        when (default_branch_ref -> 'branch_protection_rule') is null then 'Unprotected/Unverifiable - Manual Check Required.'
-        else 'Protected.'
+        when (default_branch_ref -> 'branch_protection_rule') is null then 'Unknown - manual check required'
+        else 'Protected'
       end as "Protection Status",
       (default_branch_ref -> 'branch_protection_rule' ->> 'restricts_pushes')::bool as "Restricts Pushes",
       (default_branch_ref -> 'branch_protection_rule' ->> 'allows_force_pushes')::bool as "Allows Force Pushes",

@@ -1,57 +1,40 @@
 dashboard "issue_open_age_report" {
-  title = "GitHub Open Issues Age Report"
+  title = "GitHub Open Issue Age Report"
   documentation = file("./dashboards/issue/docs/issue_open_age_report.md")
 
   tags = merge(local.issue_common_tags, {
     type = "Report"
   })
 
-  input "repositories" {
-    placeholder = "Select repositories"
-    type        = "multicombo"
-    query       = query.repository_input
-    width       = 4
-  }
-
   container {
     card {
       query = query.open_issues_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
-      query = query.open_issues_last_30_days_count
+      query = query.open_issues_24_hours_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
+    }
+
+    card {
+      query = query.open_issues_30_days_count
+      width = 2
     }
 
     card {
       query = query.open_issues_30_90_days_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
       query = query.open_issues_90_365_days_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
 
     card {
       query = query.open_issues_1_year_count
       width = 2
-      args  = {
-        repositories = self.input.repositories
-      }
     }
   }
 
@@ -59,15 +42,16 @@ dashboard "issue_open_age_report" {
     table {
       title = "Open Issues"
       query = query.open_issues_table
-      args  = {
-        repositories = self.input.repositories
-      }
 
       column "url" {
         display = "none"
       }
 
       column "author_url" {
+        display = "none"
+      }
+
+      column "repo_url" {
         display = "none"
       }
 
@@ -78,6 +62,10 @@ dashboard "issue_open_age_report" {
       column "Author" {
         href = "{{.'author_url'}}"
       }
+
+      column "Repository" {
+        href = "{{.'repo_url'}}"
+      }
     }
   }
 }
@@ -85,89 +73,107 @@ dashboard "issue_open_age_report" {
 query "open_issues_count" {
   sql = <<-EOQ
     select
-      count(*) as value,
+      count(i.*) as value,
       'Open Issues' as label
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN';
+      i.state = 'OPEN';
   EOQ
-
-  param "repositories" {}
 }
 
-query "open_issues_last_30_days_count" {
+query "open_issues_24_hours_count" {
   sql = <<-EOQ
     select
-      'Last 30 Days' as label,
-      count(*) as value
+      '< 24 Hours' as label,
+      count(i.*) as value
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and (now()::date - created_at::date) <= 30
-      and created_at between symmetric now() - '0 days' :: interval and now() - '30 days' :: interval;
+      i.state = 'OPEN'
+    and 
+      i.created_at > now() - '1 days'::interval;
   EOQ
+}
 
-  param "repositories" {}
+query "open_issues_30_days_count" {
+  sql = <<-EOQ
+    select
+      '1-30 Days' as label,
+      count(i.*) as value
+    from
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
+    where
+      i.state = 'OPEN'
+    and 
+      i.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
+  EOQ
 }
 
 query "open_issues_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
-      count(*) as value
+      count(i.*) as value
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
+      i.state = 'OPEN'
+    and 
+      i.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_issues_90_365_days_count" {
   sql = <<-EOQ
     select
       '90-365 Days' as label,
-      count(*) as value,
-      case
-        when count(*) >= 1 then 'alert'
-        else 'ok'
-      end as type
+      count(i.*) as value
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
+      i.state = 'OPEN'
+    and 
+      i.created_at  between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_issues_1_year_count" {
   sql = <<-EOQ
     select
       '> 1 Year' as label,
-      count(*) as value,
-      case
-        when count(*) >= 1 then 'alert'
-        else 'ok'
-      end as type
+      count(i.*) as value
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
-      and created_at <= now() - '1 year' :: interval;
+      i.state = 'OPEN'
+    and 
+      i.created_at <= now() - '1 year' :: interval;
   EOQ
-
-  param "repositories" {}
 }
 
 query "open_issues_table" {
@@ -175,23 +181,25 @@ query "open_issues_table" {
     select
       '#' || number || ' ' || title as "Issue",
       repository_full_name as "Repository",
-      now()::date - created_at::date as "Age in Days",
-      now()::date - updated_at::date as "Days Since Last Update",
+      now()::date - i.created_at::date as "Age in Days",
+      now()::date - i.updated_at::date as "Days Since Last Update",
       author ->> 'login' as "Author",
       author ->> 'url' as "author_url",
       case 
         when author_association = 'NONE' then 'External' 
         else initcap(author_association) 
       end as "Author Association",
-      url
+      i.url,
+      r.url as repo_url
     from
-      github_issue
+      github_my_repository r
+    join 
+      github_issue i
+    on 
+      i.repository_full_name = r.name_with_owner
     where
-      repository_full_name = any(string_to_array($1, ','))
-      and state = 'OPEN'
+      i.state = 'OPEN'
     order by
       "Age in Days" desc
   EOQ
-
-  param "repositories" {}
 }

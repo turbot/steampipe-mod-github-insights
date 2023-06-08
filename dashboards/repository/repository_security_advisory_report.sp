@@ -1,5 +1,5 @@
 dashboard "repository_security_advisory_report" {
-  title = "GitHub Repositories Security Advisory Report"
+  title = "GitHub Repository Security Advisory Report"
   documentation = file("./dashboards/repository/docs/repository_security_advisory_report.md")
 
   tags = merge(local.repository_common_tags, {
@@ -160,13 +160,10 @@ query "repository_security_advisory_critical_count" {
 query "repository_security_advisory_table" {
   sql = <<-EOQ
     select
-      a.security_advisory_severity as "Severity",
       r.name_with_owner as "Repository",
-      a.security_advisory_ghsa_id as "Advisory",
-      case 
-        when a.security_advisory_cve_id is null then 'Not Assigned.'
-        else a.security_advisory_cve_id
-      end as "CVE",
+      a.security_advisory_summary as "Advisory",
+      a.security_advisory_severity as "Severity",
+      a.security_advisory_cve_id as "CVE",
       a.dependency_package_name as "Package",
       a.dependency_scope as "Scope",
       a.created_at as "Alert Created",

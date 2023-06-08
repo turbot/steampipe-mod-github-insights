@@ -13,27 +13,27 @@ dashboard "branch_activity_report" {
     }
 
     card {
-      query = query.branch_activity_last_week_count
+      query = query.branch_activity_24_hours_count
       width = 2
     }
 
     card {
-      query = query.branch_activity_8_to_30_day_count
+      query = query.branch_activity_30_days_count
       width = 2
     }
 
     card {
-      query = query.branch_activity_31_to_90_day_count
+      query = query.branch_activity_30_90_day_count
       width = 2
     }
 
     card {
-      query = query.branch_activity_91_to_180_day_count
+      query = query.branch_activity_90_365_day_count
       width = 2
     }
 
     card {
-      query = query.branch_activity_over_180_day_count
+      query = query.branch_activity_1_year_count
       width = 2
     }
   }
@@ -83,10 +83,10 @@ query "branches_count" {
   EOQ
 }
 
-query "branch_activity_last_week_count" {
+query "branch_activity_24_hours_count" {
   sql = <<-EOQ
     select
-      'Last week' as label,
+      '< 24 Hours' as label,
       count(*) as value
     from
       github_my_repository r
@@ -94,14 +94,14 @@ query "branch_activity_last_week_count" {
       github_branch b
     on b.repository_full_name = r.name_with_owner
     where
-      (now()::date - (b.commit ->> 'authored_date')::date) <= 7;
+      (b.commit ->> 'authored_date')::date > now() - '1 days'::interval;
   EOQ
 }
 
-query "branch_activity_8_to_30_day_count" {
+query "branch_activity_30_days_count" {
   sql = <<-EOQ
     select
-      '8-30 Days' as label,
+      '1-30 Days' as label,
       count(*) as value
     from
       github_my_repository r
@@ -109,14 +109,14 @@ query "branch_activity_8_to_30_day_count" {
       github_branch b
     on b.repository_full_name = r.name_with_owner
     where
-      (now()::date - (b.commit ->> 'authored_date')::date) BETWEEN 8 AND 30;
+      (b.commit ->> 'authored_date')::date between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
   EOQ
 }
 
-query "branch_activity_31_to_90_day_count" {
+query "branch_activity_30_90_day_count" {
   sql = <<-EOQ
     select
-      '31-90 Days' as label,
+      '30-90 Days' as label,
       count(*) as value
     from
       github_my_repository r
@@ -124,14 +124,14 @@ query "branch_activity_31_to_90_day_count" {
       github_branch b
     on b.repository_full_name = r.name_with_owner
     where
-      (now()::date - (b.commit ->> 'authored_date')::date) BETWEEN 31 AND 90;
+      (b.commit ->> 'authored_date')::date between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
   EOQ
 }
 
-query "branch_activity_91_to_180_day_count" {
+query "branch_activity_90_365_day_count" {
   sql = <<-EOQ
     select
-      '91-180 Days' as label,
+      '90-365 Days' as label,
       count(*) as value,
       case
         when count(*) > 0 then 'alert'
@@ -143,14 +143,14 @@ query "branch_activity_91_to_180_day_count" {
       github_branch b
     on b.repository_full_name = r.name_with_owner
     where
-      (now()::date - (b.commit ->> 'authored_date')::date) BETWEEN 91 AND 180;
+      (b.commit ->> 'authored_date')::date between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
   EOQ
 }
 
-query "branch_activity_over_180_day_count" {
+query "branch_activity_1_year_count" {
   sql = <<-EOQ
     select
-      '> 180 Days' as label,
+      '> 1 Year' as label,
       count(*) as value,
       case
         when count(*) > 0 then 'alert'
@@ -162,7 +162,7 @@ query "branch_activity_over_180_day_count" {
       github_branch b
     on b.repository_full_name = r.name_with_owner
     where
-      (now()::date - (b.commit ->> 'authored_date')::date) > 180;
+      (b.commit ->> 'authored_date')::date <= now() - '1 year' :: interval;
   EOQ
 }
 
