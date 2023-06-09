@@ -11,12 +11,37 @@ dashboard "repository_license_report" {
       query = query.repositories_without_license_count
       width = 2
     }
+
+    card {
+      query = query.repositories_mpl_license_count
+      width = 2
+    }
+
+    card {
+      query = query.repositories_gpl_license_count
+      width = 2
+    }
+
+    card {
+      query = query.repositories_apache_license_count
+      width = 2
+    }
+
+    card {
+      query = query.repositories_mit_license_count
+      width = 2
+    }
+
+    card {
+      query = query.repositories_other_license_count
+      width = 2
+    }
   }
 
   container {
     table {
       title = "Repository Licenses"
-      query = query.repositories_without_license_table
+      query = query.repositories_license_table
 
       column "url" {
         display = "none"
@@ -45,11 +70,84 @@ query "repositories_without_license_count" {
   EOQ
 }
 
-query "repositories_without_license_table" {
+query "repositories_mpl_license_count" {
+  sql = <<-EOQ
+    select
+      license_info ->> 'key' as label, 
+      count(*) as value
+    from 
+      github_my_repository 
+    where 
+      license_info ->> 'key' = 'mpl-2.0'
+    group by
+      license_info;
+  EOQ
+}
+
+query "repositories_gpl_license_count" {
+  sql = <<-EOQ
+    select
+      'gpl-3.0 / agpl-3.0 / lgpl-3.0' as label, 
+      count(*) as value
+    from 
+      github_my_repository 
+    where 
+      license_info ->> 'key' IN ('gpl-3.0', 'agpl-3.0', 'lgpl-3.0')
+    group by
+      license_info;
+  EOQ
+}
+
+query "repositories_apache_license_count" {
+  sql = <<-EOQ
+    select
+      license_info ->> 'key' as label, 
+      count(*) as value
+    from 
+      github_my_repository 
+    where 
+      license_info ->> 'key' = 'apache-2.0'
+    group by
+      license_info;
+  EOQ
+}
+
+query "repositories_mit_license_count" {
+  sql = <<-EOQ
+    select
+      license_info ->> 'key' as label, 
+      count(*) as value
+    from 
+      github_my_repository 
+    where 
+      license_info ->> 'key' = 'mit'
+    group by
+      license_info;
+  EOQ
+}
+
+query "repositories_other_license_count" {
+  sql = <<-EOQ
+    select
+      'other' as label, 
+      count(*) as value
+    from 
+      github_my_repository 
+    where 
+      license_info is not null
+    and
+      license_info ->> 'key' not in ('mit', 'apache-2.0', 'mpl-2.0', 'gpl-3.0', 'agpl-3.0', 'lgpl-3.0')
+    group by
+      license_info;
+  EOQ
+}
+
+query "repositories_license_table" {
   sql = <<-EOQ
     select
       name_with_owner as "Repository",
-      license_info ->> 'name' as "License",
+      license_info ->> 'key' as "License",
+      license_info ->> 'name' as "License Name",
       url
     from
       github_my_repository;
