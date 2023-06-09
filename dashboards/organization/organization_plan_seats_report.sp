@@ -49,13 +49,14 @@ query "organization_plan_seats_table" {
     select
       login as "Organization",
       plan_name as "Plan Name",
-      plan_filled_seats || ' / ' ||
       case
         when plan_name = 'free' then 'n/a'
-        else plan_seats::text
+        else plan_filled_seats::text || ' / ' || plan_seats::text
       end as "Used Seats",
       url
     from
-      github_my_organization;
+      github_my_organization
+    order by
+      plan_name desc;
   EOQ
 }
