@@ -15,27 +15,31 @@ dashboard "pull_request_open_age_report" {
     card {
       query = query.open_pull_requests_24_hours_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_pull_requests_30_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_pull_requests_30_90_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_pull_requests_90_365_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_pull_requests_1_year_count
       width = 2
-
+      type  = "info"
     }
   }
 

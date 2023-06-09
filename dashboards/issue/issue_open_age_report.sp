@@ -15,26 +15,31 @@ dashboard "issue_open_age_report" {
     card {
       query = query.open_issues_24_hours_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_issues_30_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_issues_30_90_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_issues_90_365_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.open_issues_1_year_count
       width = 2
+      type  = "info"
     }
   }
 

@@ -15,26 +15,31 @@ dashboard "branch_activity_report" {
     card {
       query = query.branch_activity_24_hours_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.branch_activity_30_days_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.branch_activity_30_90_day_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.branch_activity_90_365_day_count
       width = 2
+      type  = "info"
     }
 
     card {
       query = query.branch_activity_1_year_count
       width = 2
+      type  = "info"
     }
   }
 
