@@ -8,6 +8,11 @@ dashboard "organization_plan_seats_report" {
 
   container {
     card {
+      query = query.organization_count
+      width = 2
+    }
+    
+    card {
       query = query.organization_paid_plan_seats_unused_count
       width = 2
     }

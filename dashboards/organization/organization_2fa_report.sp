@@ -8,6 +8,11 @@ dashboard "organization_2fa_report" {
 
   container {
     card {
+      query = query.organization_count
+      width = 2
+    }
+    
+    card {
       query = query.organization_2fa_enabled_count
       width = 2
     }
@@ -20,6 +25,7 @@ dashboard "organization_2fa_report" {
     card {
       query = query.organization_2fa_unknown_count
       width = 2
+      type  = "info"
     }
   }
 
@@ -71,11 +77,7 @@ query "organization_2fa_unknown_count" {
   sql = <<-EOQ
     select
       'Unknown' as label,
-      count(*) as value,
-      case
-        when count(*) > 0 then 'alert'
-        else 'ok'
-      end as type
+      count(*) as value
     from
       github_my_organization
     where

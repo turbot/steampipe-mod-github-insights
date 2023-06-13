@@ -8,6 +8,11 @@ dashboard "organization_security_advisory_report" {
 
   container {
     card {
+      query = query.organization_count
+      width = 2
+    }
+    
+    card {
       query = query.organization_security_advisory_count
       width = 2
     }

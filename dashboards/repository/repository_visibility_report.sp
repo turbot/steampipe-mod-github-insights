@@ -8,6 +8,11 @@ dashboard "repository_visibility_report" {
 
   container {
     card {
+      query = query.repository_count
+      width = 2
+    }
+
+    card {
       query = query.repository_public_count
       width = 2
     }

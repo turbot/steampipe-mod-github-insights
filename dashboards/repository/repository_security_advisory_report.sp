@@ -8,6 +8,11 @@ dashboard "repository_security_advisory_report" {
 
   container {
     card {
+      query = query.repository_count
+      width = 2
+    }
+    
+    card {
       query = query.repository_security_advisory_count
       width = 2
     }
