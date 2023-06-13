@@ -8,6 +8,11 @@ dashboard "repository_license_report" {
 
   container {
     card {
+      query = query.repository_count
+      width = 2
+    }
+
+    card {
       query = query.repositories_without_license_count
       width = 2
     }
@@ -29,11 +34,6 @@ dashboard "repository_license_report" {
 
     card {
       query = query.repositories_mit_license_count
-      width = 2
-    }
-
-    card {
-      query = query.repositories_other_license_count
       width = 2
     }
   }
@@ -121,22 +121,6 @@ query "repositories_mit_license_count" {
       github_my_repository 
     where 
       license_info ->> 'key' = 'mit'
-    group by
-      license_info;
-  EOQ
-}
-
-query "repositories_other_license_count" {
-  sql = <<-EOQ
-    select
-      'other' as label, 
-      count(*) as value
-    from 
-      github_my_repository 
-    where 
-      license_info is not null
-    and
-      license_info ->> 'key' not in ('mit', 'apache-2.0', 'mpl-2.0', 'gpl-3.0', 'agpl-3.0', 'lgpl-3.0')
     group by
       license_info;
   EOQ
