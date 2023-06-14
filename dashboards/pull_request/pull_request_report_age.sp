@@ -1,6 +1,6 @@
 dashboard "pull_request_open_age_report" {
   title = "GitHub Open Pull Request Age Report"
-  documentation = file("./dashboards/pull_request/docs/pull_request_open_age_report.md")
+  documentation = file("./dashboards/pull_request/docs/pull_request_report_age.md")
 
   tags = merge(local.pull_request_common_tags, {
     type = "Report"

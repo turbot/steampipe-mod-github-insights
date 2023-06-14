@@ -1,6 +1,6 @@
 dashboard "branch_activity_report" {
   title = "GitHub Branch Activity Report"
-  documentation = file("./dashboards/branch/docs/branch_activity_report.md")
+  documentation = file("./dashboards/branch/docs/branch_report_activity.md")
 
   tags = merge(local.branch_common_tags, {
     type = "Report"

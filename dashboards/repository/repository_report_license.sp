@@ -1,6 +1,6 @@
 dashboard "repository_license_report" {
   title = "GitHub Repository License Report"
-  documentation = file("./dashboards/repository/docs/repository_license_report.md")
+  documentation = file("./dashboards/repository/docs/repository_report_license.md")
 
   tags = merge(local.repository_common_tags, {
     type = "Report"

@@ -1,6 +1,6 @@
 dashboard "organization_plan_seat_report" {
   title = "GitHub Organization Plan Seat Report"
-  documentation = file("./dashboards/organization/docs/organization_plan_seat_report.md")
+  documentation = file("./dashboards/organization/docs/organization_report_plan_seat.md")
   
   tags = merge(local.organization_common_tags, {
     type = "Report"

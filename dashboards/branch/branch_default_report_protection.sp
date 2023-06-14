@@ -1,6 +1,6 @@
 dashboard "default_branch_protection_report" {
   title = "GitHub Default Branch Protection Report"
-  documentation = file("./dashboards/branch/docs/default_branch_protection_report.md")
+  documentation = file("./dashboards/branch/docs/branch_default_report_protection.md")
 
   tags = merge(local.branch_common_tags, {
     type = "Report"

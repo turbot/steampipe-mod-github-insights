@@ -1,6 +1,6 @@
 dashboard "organization_2fa_report" {
   title = "GitHub Organization 2FA Report"
-  documentation = file("./dashboards/organization/docs/organization_2fa_report.md")
+  documentation = file("./dashboards/organization/docs/organization_report_2fa.md")
   
   tags = merge(local.organization_common_tags, {
     type = "Report"

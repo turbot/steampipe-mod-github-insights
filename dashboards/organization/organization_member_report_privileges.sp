@@ -1,6 +1,6 @@
 dashboard "organization_member_privileges_report" {
   title = "GitHub Organization Member Privileges Report"
-  documentation = file("./dashboards/organization/docs/organization_member_privileges_report.md")
+  documentation = file("./dashboards/organization/docs/organization_member_report_privileges.md")
   
   tags = merge(local.organization_common_tags, {
     type = "Report"
