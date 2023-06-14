@@ -8,3 +8,12 @@ locals {
     service = "GitHub/Repository"
   }
 }
+
+query "repository_count" {
+  sql = <<-EOQ
+    select
+      count(*) as "Repositories"
+    from
+      github_my_repository;
+  EOQ
+}
