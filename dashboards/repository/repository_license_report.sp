@@ -13,27 +13,27 @@ dashboard "repository_license_report" {
     }
 
     card {
-      query = query.repositories_without_license_count
+      query = query.repository_without_license_count
       width = 2
     }
 
     card {
-      query = query.repositories_mpl_license_count
+      query = query.repository_mpl_license_count
       width = 2
     }
 
     card {
-      query = query.repositories_gpl_license_count
+      query = query.repository_gpl_license_count
       width = 2
     }
 
     card {
-      query = query.repositories_apache_license_count
+      query = query.repository_apache_license_count
       width = 2
     }
 
     card {
-      query = query.repositories_mit_license_count
+      query = query.repository_mit_license_count
       width = 2
     }
   }
@@ -41,7 +41,7 @@ dashboard "repository_license_report" {
   container {
     table {
       title = "Repository Licenses"
-      query = query.repositories_license_table
+      query = query.repository_license_table
 
       column "url" {
         display = "none"
@@ -54,7 +54,7 @@ dashboard "repository_license_report" {
   }
 }
 
-query "repositories_without_license_count" {
+query "repository_without_license_count" {
   sql = <<-EOQ
     select
       'Without License' as label,
@@ -70,7 +70,7 @@ query "repositories_without_license_count" {
   EOQ
 }
 
-query "repositories_mpl_license_count" {
+query "repository_mpl_license_count" {
   sql = <<-EOQ
     select
       license_info ->> 'key' as label, 
@@ -84,7 +84,7 @@ query "repositories_mpl_license_count" {
   EOQ
 }
 
-query "repositories_gpl_license_count" {
+query "repository_gpl_license_count" {
   sql = <<-EOQ
     select
       'gpl-3.0 / agpl-3.0 / lgpl-3.0' as label, 
@@ -98,7 +98,7 @@ query "repositories_gpl_license_count" {
   EOQ
 }
 
-query "repositories_apache_license_count" {
+query "repository_apache_license_count" {
   sql = <<-EOQ
     select
       license_info ->> 'key' as label, 
@@ -112,7 +112,7 @@ query "repositories_apache_license_count" {
   EOQ
 }
 
-query "repositories_mit_license_count" {
+query "repository_mit_license_count" {
   sql = <<-EOQ
     select
       license_info ->> 'key' as label, 
@@ -126,7 +126,7 @@ query "repositories_mit_license_count" {
   EOQ
 }
 
-query "repositories_license_table" {
+query "repository_license_table" {
   sql = <<-EOQ
     select
       name_with_owner as "Repository",

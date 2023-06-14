@@ -8,36 +8,36 @@ dashboard "issue_open_age_report" {
 
   container {
     card {
-      query = query.open_issues_count
+      query = query.open_issue_count
       width = 2
     }
 
     card {
-      query = query.open_issues_24_hours_count
-      width = 2
-      type  = "info"
-    }
-
-    card {
-      query = query.open_issues_30_days_count
+      query = query.open_issue_24_hours_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_issues_30_90_days_count
+      query = query.open_issue_30_days_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_issues_90_365_days_count
+      query = query.open_issue_30_90_days_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_issues_1_year_count
+      query = query.open_issue_90_365_days_count
+      width = 2
+      type  = "info"
+    }
+
+    card {
+      query = query.open_issue_1_year_count
       width = 2
       type  = "info"
     }
@@ -46,7 +46,7 @@ dashboard "issue_open_age_report" {
   container {
     table {
       title = "Open Issues"
-      query = query.open_issues_table
+      query = query.open_issue_table
 
       column "url" {
         display = "none"
@@ -75,7 +75,7 @@ dashboard "issue_open_age_report" {
   }
 }
 
-query "open_issues_count" {
+query "open_issue_count" {
   sql = <<-EOQ
     select
       count(i.*) as value,
@@ -91,7 +91,7 @@ query "open_issues_count" {
   EOQ
 }
 
-query "open_issues_24_hours_count" {
+query "open_issue_24_hours_count" {
   sql = <<-EOQ
     select
       '< 24 Hours' as label,
@@ -109,7 +109,7 @@ query "open_issues_24_hours_count" {
   EOQ
 }
 
-query "open_issues_30_days_count" {
+query "open_issue_30_days_count" {
   sql = <<-EOQ
     select
       '1-30 Days' as label,
@@ -127,7 +127,7 @@ query "open_issues_30_days_count" {
   EOQ
 }
 
-query "open_issues_30_90_days_count" {
+query "open_issue_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
@@ -145,7 +145,7 @@ query "open_issues_30_90_days_count" {
   EOQ
 }
 
-query "open_issues_90_365_days_count" {
+query "open_issue_90_365_days_count" {
   sql = <<-EOQ
     select
       '90-365 Days' as label,
@@ -163,7 +163,7 @@ query "open_issues_90_365_days_count" {
   EOQ
 }
 
-query "open_issues_1_year_count" {
+query "open_issue_1_year_count" {
   sql = <<-EOQ
     select
       '> 1 Year' as label,
@@ -181,7 +181,7 @@ query "open_issues_1_year_count" {
   EOQ
 }
 
-query "open_issues_table" {
+query "open_issue_table" {
   sql = <<-EOQ
     select
       '#' || number || ' ' || title as "Issue",

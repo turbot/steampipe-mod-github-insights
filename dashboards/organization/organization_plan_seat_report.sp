@@ -1,6 +1,6 @@
-dashboard "organization_plan_seats_report" {
-  title = "GitHub Organization Plan Seats Report"
-  documentation = file("./dashboards/organization/docs/organization_plan_seats_report.md")
+dashboard "organization_plan_seat_report" {
+  title = "GitHub Organization Plan Seat Report"
+  documentation = file("./dashboards/organization/docs/organization_plan_seat_report.md")
   
   tags = merge(local.organization_common_tags, {
     type = "Report"
@@ -13,7 +13,7 @@ dashboard "organization_plan_seats_report" {
     }
     
     card {
-      query = query.organization_paid_plan_seats_unused_count
+      query = query.organization_paid_plan_seat_unused_count
       width = 2
     }
   }
@@ -21,7 +21,7 @@ dashboard "organization_plan_seats_report" {
   container {
     table {
       title = "Plan Seating Information"
-      query = query.organization_plan_seats_table
+      query = query.organization_plan_seat_table
 
       column "url" {
         display = "none"
@@ -34,7 +34,7 @@ dashboard "organization_plan_seats_report" {
   }
 }
 
-query "organization_paid_plan_seats_unused_count" {
+query "organization_paid_plan_seat_unused_count" {
   sql = <<-EOQ
     select
       'Umused Plan Seats' as label,
@@ -49,7 +49,7 @@ query "organization_paid_plan_seats_unused_count" {
   EOQ
 }
 
-query "organization_plan_seats_table" {
+query "organization_plan_seat_table" {
   sql = <<-EOQ
     select
       login as "Organization",

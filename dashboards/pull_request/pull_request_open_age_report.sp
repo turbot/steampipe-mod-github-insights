@@ -8,36 +8,36 @@ dashboard "pull_request_open_age_report" {
 
   container {
     card {
-      query = query.open_pull_requests_count
+      query = query.open_pull_request_count
       width = 2
     }
 
     card {
-      query = query.open_pull_requests_24_hours_count
-      width = 2
-      type  = "info"
-    }
-
-    card {
-      query = query.open_pull_requests_30_days_count
+      query = query.open_pull_request_24_hours_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_pull_requests_30_90_days_count
+      query = query.open_pull_request_30_days_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_pull_requests_90_365_days_count
+      query = query.open_pull_request_30_90_days_count
       width = 2
       type  = "info"
     }
 
     card {
-      query = query.open_pull_requests_1_year_count
+      query = query.open_pull_request_90_365_days_count
+      width = 2
+      type  = "info"
+    }
+
+    card {
+      query = query.open_pull_request_1_year_count
       width = 2
       type  = "info"
     }
@@ -46,7 +46,7 @@ dashboard "pull_request_open_age_report" {
   container {
     table {
       title = "Open Pull Requests"
-      query = query.open_pull_requests_table
+      query = query.open_pull_request_table
 
       column "url" {
         display = "none"
@@ -75,7 +75,7 @@ dashboard "pull_request_open_age_report" {
   }
 }
 
-query "open_pull_requests_count" {
+query "open_pull_request_count" {
   sql = <<-EOQ
     select
       count(*) as value,
@@ -91,7 +91,7 @@ query "open_pull_requests_count" {
   EOQ
 }
 
-query "open_pull_requests_24_hours_count" {
+query "open_pull_request_24_hours_count" {
   sql = <<-EOQ
     select
       '< 24 Hours' as label,
@@ -109,7 +109,7 @@ query "open_pull_requests_24_hours_count" {
   EOQ
 }
 
-query "open_pull_requests_30_days_count" {
+query "open_pull_request_30_days_count" {
   sql = <<-EOQ
     select
       '1-30 Days' as label,
@@ -127,7 +127,7 @@ query "open_pull_requests_30_days_count" {
   EOQ
 }
 
-query "open_pull_requests_30_90_days_count" {
+query "open_pull_request_30_90_days_count" {
   sql = <<-EOQ
     select
       '30-90 Days' as label,
@@ -145,7 +145,7 @@ query "open_pull_requests_30_90_days_count" {
   EOQ
 }
 
-query "open_pull_requests_90_365_days_count" {
+query "open_pull_request_90_365_days_count" {
   sql = <<-EOQ
     select
       '90-365 Days' as label,
@@ -163,7 +163,7 @@ query "open_pull_requests_90_365_days_count" {
   EOQ
 }
 
-query "open_pull_requests_1_year_count" {
+query "open_pull_request_1_year_count" {
   sql = <<-EOQ
     select
       '> 1 Year' as label,
@@ -181,7 +181,7 @@ query "open_pull_requests_1_year_count" {
   EOQ
 }
 
-query "open_pull_requests_table" {
+query "open_pull_request_table" {
   sql = <<-EOQ
     select
       '#' || number || ' ' || title as "PR",
