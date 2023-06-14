@@ -3,7 +3,8 @@ dashboard "issue_open_age_report" {
   documentation = file("./dashboards/issue/docs/issue_report_age.md")
 
   tags = merge(local.issue_common_tags, {
-    type = "Report"
+    type     = "Report"
+    category = "Age"
   })
 
   container {

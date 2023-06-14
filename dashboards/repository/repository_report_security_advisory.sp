@@ -3,7 +3,8 @@ dashboard "repository_security_advisory_report" {
   documentation = file("./dashboards/repository/docs/repository_report_security_advisory.md")
 
   tags = merge(local.repository_common_tags, {
-    type = "Report"
+    type     = "Report"
+    category = "Security"
   })
 
   container {

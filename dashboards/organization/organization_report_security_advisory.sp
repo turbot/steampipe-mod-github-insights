@@ -3,7 +3,8 @@ dashboard "organization_security_advisory_report" {
   documentation = file("./dashboards/organization/docs/organization_report_security_advisory.md")
 
   tags = merge(local.organization_common_tags, {
-    type = "Report"
+    type     = "Report"
+    category = "Security"
   })
 
   container {

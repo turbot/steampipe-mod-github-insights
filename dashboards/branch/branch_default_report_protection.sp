@@ -3,7 +3,8 @@ dashboard "default_branch_protection_report" {
   documentation = file("./dashboards/branch/docs/branch_default_report_protection.md")
 
   tags = merge(local.branch_common_tags, {
-    type = "Report"
+    type     = "Report"
+    category = "Security"
   })
 
   container {
