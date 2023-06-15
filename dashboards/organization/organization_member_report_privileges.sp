@@ -7,6 +7,13 @@ dashboard "organization_member_privileges_report" {
   })
 
   container {
+    card {
+      query = query.organization_count
+      width = 2
+    }
+  }
+
+  container {
     table {
       title = "Organization Member Privileges"
       query = query.organization_member_privileges_table
