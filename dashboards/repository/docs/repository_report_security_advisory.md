@@ -1,3 +1,3 @@
-This dashboard answers the following questions:
+This report answers the following questions:
 
 - Across all my repositories do I have any open security vulnerability alerts?
