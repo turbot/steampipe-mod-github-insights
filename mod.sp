@@ -13,5 +13,9 @@ mod "github_insights" {
     image       = "/images/mods/turbot/github-insights-social-graphic.png"
   }
 
-  # TODO: Include require block for min version of Steampipe / GitHub plugin
+  require {
+    plugin "github" {
+      version = "0.28.0"
+    }
+  }
 }
