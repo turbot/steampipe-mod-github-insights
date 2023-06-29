@@ -37,7 +37,7 @@ dashboard "organization_plan_seat_report" {
 query "organization_paid_plan_seat_unused_count" {
   sql = <<-EOQ
     select
-      'Umused Plan Seats' as label,
+      'Unused Plan Seats' as label,
       sum(plan_seats) - sum(plan_filled_seats) as value,
       case
         when (sum(plan_seats) - sum(plan_filled_seats)) > 0 then 'alert'
