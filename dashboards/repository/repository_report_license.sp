@@ -70,62 +70,6 @@ query "repository_without_license_count" {
   EOQ
 }
 
-query "repository_mpl_license_count" {
-  sql = <<-EOQ
-    select
-      license_info ->> 'key' as label, 
-      count(*) as value
-    from 
-      github_my_repository 
-    where 
-      license_info ->> 'key' = 'mpl-2.0'
-    group by
-      license_info;
-  EOQ
-}
-
-query "repository_gpl_license_count" {
-  sql = <<-EOQ
-    select
-      'gpl-3.0 / agpl-3.0 / lgpl-3.0' as label, 
-      count(*) as value
-    from 
-      github_my_repository 
-    where 
-      license_info ->> 'key' IN ('gpl-3.0', 'agpl-3.0', 'lgpl-3.0')
-    group by
-      license_info;
-  EOQ
-}
-
-query "repository_apache_license_count" {
-  sql = <<-EOQ
-    select
-      license_info ->> 'key' as label, 
-      count(*) as value
-    from 
-      github_my_repository 
-    where 
-      license_info ->> 'key' = 'apache-2.0'
-    group by
-      license_info;
-  EOQ
-}
-
-query "repository_mit_license_count" {
-  sql = <<-EOQ
-    select
-      license_info ->> 'key' as label, 
-      count(*) as value
-    from 
-      github_my_repository 
-    where 
-      license_info ->> 'key' = 'mit'
-    group by
-      license_info;
-  EOQ
-}
-
 query "repository_weak_copyleft_license_count" {
   sql = <<-EOQ
     select
