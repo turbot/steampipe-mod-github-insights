@@ -32,7 +32,7 @@ dashboard "organization_2fa_report" {
 
   container {
     table {
-      title = "Organization 2fa Settings"
+      title = "Organization 2FA Settings"
       query = query.organization_2fa_table
 
       column "url" {
@@ -90,7 +90,7 @@ query "organization_2fa_table" {
   sql = <<-EOQ
     select
       login as "Organization",
-      two_factor_requirement_enabled as "2fa Required",
+      two_factor_requirement_enabled as "2FA Required",
       url
     from
       github_my_organization;
