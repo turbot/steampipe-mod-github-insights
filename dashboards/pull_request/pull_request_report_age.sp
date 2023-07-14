@@ -185,7 +185,7 @@ query "open_pull_request_1_year_count" {
 query "open_pull_request_table" {
   sql = <<-EOQ
     select
-      '#' || number || ' ' || title as "PR",
+      title || ' ' || '#' || number as "PR",
       repository_full_name as "Repository",
       now()::date - p.created_at::date as "Age in Days",
       now()::date - p.updated_at::date as "Days Since Last Update",
