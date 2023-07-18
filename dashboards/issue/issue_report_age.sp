@@ -63,6 +63,7 @@ dashboard "issue_open_age_report" {
 
       column "Issue" {
         href = "{{.'url'}}"
+        wrap = "all"
       }
 
       column "Author" {
@@ -185,7 +186,7 @@ query "open_issue_1_year_count" {
 query "open_issue_table" {
   sql = <<-EOQ
     select
-      title || ' ' || '#' || number as "Issue",
+      '#' || number || ' ' || title as "Issue",
       repository_full_name as "Repository",
       now()::date - i.created_at::date as "Age in Days",
       now()::date - i.updated_at::date as "Days Since Last Update",
