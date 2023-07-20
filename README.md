@@ -2,7 +2,7 @@
 
 A GitHub dashboarding tool that can be used to view dashboards and reports across all of your GitHub repositories.
 
-<!-- ![image](https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/github_dashboard.png) -->
+![image](https://hub.steampipe.io/images/mods/turbot/github-insights-social-graphic.png) 
 
 ## Overview
 
