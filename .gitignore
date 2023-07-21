@@ -1,0 +1,3 @@
+# Steampipe variable files
+*.spvars
+*.auto.spvars
