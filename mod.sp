@@ -15,7 +15,7 @@ mod "github_insights" {
 
   require {
     plugin "github" {
-      min_version = "0.30.0"
+      min_version = "0.28.0"
     }
   }
 }
