@@ -2,7 +2,7 @@
 
 A GitHub dashboarding tool that can be used to view dashboards and reports across all of your GitHub repositories.
 
-![image](https://hub.steampipe.io/images/mods/turbot/github-insights-social-graphic.png) 
+![image](https://hub.steampipe.io/images/mods/turbot/github-insights-social-graphic.png)
 
 ## Overview
 
@@ -45,7 +45,7 @@ Start your dashboard server to get started:
 steampipe dashboard
 ```
 
-By default, the dashboard interface will then be launched in a new browser window at https://localhost:9194. From here, you can view dashboards and reports.
+By default, the dashboard interface will then be launched in a new browser window at http://localhost:9194. From here, you can view dashboards and reports.
 
 ### Credentials
 
