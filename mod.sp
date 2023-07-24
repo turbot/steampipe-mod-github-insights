@@ -14,6 +14,7 @@ mod "github_insights" {
   }
 
   require {
+    steampipe = "0.18.0"
     plugin "github" {
       version = "0.29.0"
     }
