@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the brand color of the mod icon
+- Fixed the brand color of the mod icon.
 
 ## v0.1 [2023-07-26]
 
