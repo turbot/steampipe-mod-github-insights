@@ -1,7 +1,7 @@
 dashboard "organization_member_privileges_report" {
   title = "GitHub Organization Member Privileges Report"
   documentation = file("./dashboards/organization/docs/organization_member_report_privileges.md")
-  
+
   tags = merge(local.organization_common_tags, {
     type = "Report"
   })
@@ -9,7 +9,7 @@ dashboard "organization_member_privileges_report" {
   container {
     card {
       query = query.organization_count
-      width = 2
+      width = 3
     }
   }
 

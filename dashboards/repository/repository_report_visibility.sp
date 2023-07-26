@@ -9,17 +9,17 @@ dashboard "repository_visibility_report" {
   container {
     card {
       query = query.repository_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.repository_public_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.repository_private_count
-      width = 2
+      width = 3
     }
   }
 
@@ -76,6 +76,7 @@ query "repository_visibility_table" {
     from
       github_my_repository
     order by
-      visibility, name_with_owner;
+      visibility,
+      name_with_owner;
   EOQ
 }

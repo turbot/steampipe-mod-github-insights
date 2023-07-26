@@ -84,10 +84,7 @@ query "open_issue_count" {
       'Open Issues' as label
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN';
   EOQ
@@ -100,14 +97,10 @@ query "open_issue_24_hours_count" {
       count(i.*) as value
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
-    and 
-      i.created_at > now() - '1 days'::interval;
+      and i.created_at > now() - '1 days'::interval;
   EOQ
 }
 
@@ -118,14 +111,10 @@ query "open_issue_30_days_count" {
       count(i.*) as value
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
-    and 
-      i.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
+      and i.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
   EOQ
 }
 
@@ -136,14 +125,10 @@ query "open_issue_30_90_days_count" {
       count(i.*) as value
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
-    and 
-      i.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
+      and i.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
   EOQ
 }
 
@@ -154,14 +139,10 @@ query "open_issue_90_365_days_count" {
       count(i.*) as value
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
-    and 
-      i.created_at  between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
+      and i.created_at  between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
   EOQ
 }
 
@@ -172,14 +153,10 @@ query "open_issue_1_year_count" {
       count(i.*) as value
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
-    and 
-      i.created_at <= now() - '1 year' :: interval;
+      and i.created_at <= now() - '1 year' :: interval;
   EOQ
 }
 
@@ -192,21 +169,18 @@ query "open_issue_table" {
       now()::date - i.updated_at::date as "Days Since Last Update",
       author ->> 'login' as "Author",
       author ->> 'url' as "author_url",
-      case 
-        when author_association = 'NONE' then 'External' 
-        else initcap(author_association) 
+      case
+        when author_association = 'NONE' then 'External'
+        else initcap(author_association)
       end as "Author Association",
       i.url,
       r.url as repo_url
     from
       github_my_repository r
-    join 
-      github_issue i
-    on 
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN'
     order by
-      "Age in Days" desc
+      "Age in Days" desc;
   EOQ
 }

@@ -123,6 +123,7 @@ query "repository_stargazer_table" {
     from
       github_my_repository
     order by
-      stargazer_count DESC, name_with_owner;
+      stargazer_count DESC,
+      name_with_owner;
   EOQ
 }

@@ -12,7 +12,7 @@ dashboard "repository_security_advisory_report" {
       query = query.repository_count
       width = 2
     }
-    
+
     card {
       query = query.repository_security_advisory_count
       width = 2
@@ -62,7 +62,7 @@ dashboard "repository_security_advisory_report" {
 
       column "Advisory" {
         href = "{{.'advisory_url'}}"
-      } 
+      }
     }
   }
 }
@@ -74,10 +74,7 @@ query "repository_security_advisory_count" {
       count(*) as value
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open';
   EOQ
@@ -90,13 +87,10 @@ query "repository_security_advisory_low_count" {
       count(*) as value
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-    and a.security_advisory_severity = 'low';
+      and a.security_advisory_severity = 'low';
   EOQ
 }
 
@@ -111,13 +105,10 @@ query "repository_security_advisory_medium_count" {
       end as type
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-    and a.security_advisory_severity = 'medium';
+      and a.security_advisory_severity = 'medium';
   EOQ
 }
 
@@ -132,13 +123,10 @@ query "repository_security_advisory_high_count" {
       end as type
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-    and a.security_advisory_severity = 'high';
+      and a.security_advisory_severity = 'high';
   EOQ
 }
 
@@ -153,13 +141,10 @@ query "repository_security_advisory_critical_count" {
       end as type
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-    and a.security_advisory_severity = 'critical';
+      and a.security_advisory_severity = 'critical';
   EOQ
 }
 
@@ -176,7 +161,7 @@ query "repository_security_advisory_table" {
       now()::date - a.created_at::date as "Age in Days",
       a.html_url as "advisory_url",
       r.url,
-      case 
+      case
         when a.security_advisory_severity = 'critical' then 1
         when a.security_advisory_severity = 'high' then 2
         when a.security_advisory_severity = 'medium' then 3
@@ -185,10 +170,7 @@ query "repository_security_advisory_table" {
       end as weight
     from
       github_my_repository r
-    join
-      github_repository_dependabot_alert a
-    on
-      r.name_with_owner = a.repository_full_name
+      join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
     order by

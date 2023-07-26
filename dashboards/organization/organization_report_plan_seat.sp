@@ -1,7 +1,7 @@
 dashboard "organization_plan_seat_report" {
   title = "GitHub Organization Plan Seat Report"
   documentation = file("./dashboards/organization/docs/organization_report_plan_seat.md")
-  
+
   tags = merge(local.organization_common_tags, {
     type = "Report"
   })
@@ -9,12 +9,12 @@ dashboard "organization_plan_seat_report" {
   container {
     card {
       query = query.organization_count
-      width = 2
+      width = 3
     }
-    
+
     card {
       query = query.organization_paid_plan_seat_unused_count
-      width = 2
+      width = 3
     }
   }
 
@@ -45,7 +45,8 @@ query "organization_paid_plan_seat_unused_count" {
       end as type
     from
       github_my_organization
-    where plan_name <> 'free';
+    where
+      plan_name <> 'free';
   EOQ
 }
 
