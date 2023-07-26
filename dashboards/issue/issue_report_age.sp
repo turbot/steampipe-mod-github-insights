@@ -84,10 +84,7 @@ query "open_issue_count" {
       'Open Issues' as label
     from
       github_my_repository r
-    join
-      github_issue i
-    on
-      i.repository_full_name = r.name_with_owner
+      join github_issue i on i.repository_full_name = r.name_with_owner
     where
       i.state = 'OPEN';
   EOQ
