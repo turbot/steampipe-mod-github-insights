@@ -1,3 +1,9 @@
+## v0.2 [2023-07-26]
+
+_Bug fixes_
+
+- Fixed the brand color of the mod icon
+
 ## v0.1 [2023-07-26]
 
 _What's new?_
