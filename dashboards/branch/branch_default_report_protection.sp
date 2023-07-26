@@ -10,17 +10,17 @@ dashboard "default_branch_protection_report" {
   container {
     card {
       query = query.repository_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.default_branch_protection_enabled_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.default_branch_protection_disabled_unverifiable_count
-      width = 2
+      width = 3
     }
   }
 
@@ -48,7 +48,7 @@ query "default_branch_protection_enabled_count" {
     from
       github_my_repository
     where
-      (default_branch_ref -> 'branch_protection_rule') is not null
+      (default_branch_ref -> 'branch_protection_rule') is not null;
   EOQ
 }
 
@@ -64,7 +64,7 @@ query "default_branch_protection_disabled_unverifiable_count" {
     from
       github_my_repository
     where
-      (default_branch_ref -> 'branch_protection_rule') is null
+      (default_branch_ref -> 'branch_protection_rule') is null;
   EOQ
 }
 

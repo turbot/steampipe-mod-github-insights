@@ -84,10 +84,7 @@ query "open_pull_request_count" {
       'Open PRs' as label
     from
       github_my_repository r
-    join
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN';
   EOQ
@@ -100,14 +97,10 @@ query "open_pull_request_24_hours_count" {
       count(p.*) as value
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
-    and 
-      p.created_at > now() - '1 days'::interval;
+      and p.created_at > now() - '1 days'::interval;
   EOQ
 }
 
@@ -118,14 +111,10 @@ query "open_pull_request_30_days_count" {
       count(p.*) as value
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
-    and 
-      p.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
+      and p.created_at between symmetric now() - '1 days' :: interval and now() - '30 days' :: interval;
   EOQ
 }
 
@@ -136,14 +125,10 @@ query "open_pull_request_30_90_days_count" {
       count(p.*) as value
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
-    and 
-      p.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
+      and p.created_at between symmetric now() - '30 days' :: interval and now() - '90 days' :: interval;
   EOQ
 }
 
@@ -154,14 +139,10 @@ query "open_pull_request_90_365_days_count" {
       count(p.*) as value
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
-    and 
-      p.created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
+      and p.created_at between symmetric now() - '90 days' :: interval and now() - '365 days' :: interval;
   EOQ
 }
 
@@ -172,14 +153,10 @@ query "open_pull_request_1_year_count" {
       count(p.*) as value
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
-    and 
-      p.created_at <= now() - '1 year' :: interval;
+      and p.created_at <= now() - '1 year' :: interval;
   EOQ
 }
 
@@ -193,21 +170,18 @@ query "open_pull_request_table" {
       mergeable as "Mergeable State",
       author ->> 'login' as "Author",
       author ->> 'url' as "author_url",
-      case 
-        when author_association = 'NONE' then 'External' 
-        else initcap(author_association) 
+      case
+        when author_association = 'NONE' then 'External'
+        else initcap(author_association)
       end as "Author Association",
       p.url,
       r.url as repo_url
     from
       github_my_repository r
-    join 
-      github_pull_request p
-    on 
-      p.repository_full_name = r.name_with_owner
+      join github_pull_request p on p.repository_full_name = r.name_with_owner
     where
       p.state = 'OPEN'
     order by
-      "Age in Days" desc
+      "Age in Days" desc;
   EOQ
 }

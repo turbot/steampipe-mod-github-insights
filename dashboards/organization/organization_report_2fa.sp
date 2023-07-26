@@ -1,7 +1,7 @@
 dashboard "organization_2fa_report" {
   title = "GitHub Organization 2FA Report"
   documentation = file("./dashboards/organization/docs/organization_report_2fa.md")
-  
+
   tags = merge(local.organization_common_tags, {
     type     = "Report"
     category = "Security"
@@ -10,22 +10,22 @@ dashboard "organization_2fa_report" {
   container {
     card {
       query = query.organization_count
-      width = 2
+      width = 3
     }
-    
+
     card {
       query = query.organization_2fa_enabled_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.organization_2fa_disabled_count
-      width = 2
+      width = 3
     }
 
     card {
       query = query.organization_2fa_unknown_count
-      width = 2
+      width = 3
       type  = "info"
     }
   }
