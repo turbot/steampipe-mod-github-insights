@@ -2,7 +2,14 @@
 
 A GitHub dashboarding tool that can be used to view dashboards and reports across all of your GitHub repositories.
 
-![image](https://hub.steampipe.io/images/mods/turbot/github-insights-social-graphic.png)
+Run checks in a dashboard:
+![image](https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/github_insight_dashboard.png)
+
+Includes support for:
+* [Issue Best Practices](https://hub.steampipe.io/mods/turbot/github_insights/controls/benchmark.issue_best_practices)
+* [Organization Best Practices](https://hub.steampipe.io/mods/turbot/github_insights/controls/benchmark.org_best_practices)
+* [Private Repository Best Practices](https://hub.steampipe.io/mods/turbot/github_insights/controls/benchmark.private_repo_best_practices)
+* [Public Repository Best Practices](https://hub.steampipe.io/mods/turbot/github_insights/controls/benchmark.public_repo_best_practices)
 
 ## Overview
 

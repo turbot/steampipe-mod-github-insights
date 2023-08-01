@@ -1,3 +1,11 @@
+// Benchmarks and controls for specific services should override the "service" tag
+locals {
+  github_insights_common_tags = {
+    plugin  = "github"
+    service = "GitHub"
+  }
+}
+
 mod "github_insights" {
   # hub metadata
   title         = "GitHub Insights"
