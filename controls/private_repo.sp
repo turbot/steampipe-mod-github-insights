@@ -45,6 +45,7 @@ control "private_repo_default_branch_blocks_deletion" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -74,6 +75,7 @@ control "private_repo_default_branch_blocks_force_push" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -103,6 +105,7 @@ control "private_repo_default_branch_protections_apply_to_admins" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -131,6 +134,7 @@ control "private_repo_default_branch_requires_pull_request_reviews" {
           else ' does not require pull request reviews.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -153,6 +157,7 @@ control "private_repo_delete_branch_on_merge_enabled" {
       end as status,
       name_with_owner || ' delete branch on merge is ' || case when(delete_branch_on_merge)::bool then 'enabled' else 'disabled' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -175,6 +180,7 @@ control "private_repo_issues_enabled" {
       end as status,
       name_with_owner || ' issues are ' || case when(has_issues_enabled)::bool then 'enabled' else 'disabled' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -197,19 +203,15 @@ control "private_repo_no_outside_collaborators" {
       end as status,
       r.name_with_owner || ' has ' || count(c.user_login)::text || ' outside collaborator(s).' as reason,
       r.name_with_owner
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "r.")}
     from
       github_my_repository r
-    left outer join
-      github_repository_collaborator c
-    on
-      r.name_with_owner = c.repository_full_name
-    and
-      c.affiliation = 'OUTSIDE'
+      left outer join github_repository_collaborator c on r.name_with_owner = c.repository_full_name
+      and c.affiliation = 'OUTSIDE'
     where
       r.visibility = 'PRIVATE'
-    and
-      r.is_fork = ${local.include_forks}
+      and r.is_fork = ${local.include_forks}
     group by
-      name_with_owner, url;
+      name_with_owner, url, r._ctx;
   EOT
 }

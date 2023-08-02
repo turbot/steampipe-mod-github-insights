@@ -44,6 +44,7 @@ control "public_repo_code_of_conduct_added" {
       end as status,
       name_with_owner || ' code of conduct is ' || case when (code_of_conduct is not null) then (code_of_conduct ->> 'name') else 'not added' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -66,6 +67,7 @@ control "public_repo_contributing_added" {
       end as status,
       r.name_with_owner || case when (p.contributing is not null) then ' has ' else ' has no ' end || 'contributing guidelines.' as reason,
       r.name_with_owner
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "r.")}
     from
       github_my_repository as r
       left join github_community_profile as p on r.name_with_owner = p.repository_full_name
@@ -96,6 +98,7 @@ control "public_repo_default_branch_blocks_deletion" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -125,6 +128,7 @@ control "public_repo_default_branch_blocks_force_push" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -154,6 +158,7 @@ control "public_repo_default_branch_protections_apply_to_admins" {
           else ' branch protection rule unknown.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -182,6 +187,7 @@ control "public_repo_default_branch_requires_pull_request_reviews" {
           else ' does not require pull request reviews.'
         end as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -204,6 +210,7 @@ control "public_repo_delete_branch_on_merge_enabled" {
       end as status,
       name_with_owner || ' delete branch on merge is ' || case when(delete_branch_on_merge)::bool then 'enabled' else 'disabled' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -226,6 +233,7 @@ control "public_repo_description_set" {
       end as status,
       name_with_owner || ' description is ' || case when (description <> '') then description else 'not set' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -248,6 +256,7 @@ control "public_repo_issues_enabled" {
       end as status,
       name_with_owner || ' issues are ' || case when(has_issues_enabled)::bool then 'enabled' else 'disabled' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -270,6 +279,7 @@ control "public_repo_license_added" {
       end as status,
       name_with_owner || ' license is ' || case when (license_info is not null) then (license_info ->> 'spdx_id') else 'not added' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -290,6 +300,7 @@ control "public_repo_pull_request_template_added" {
       end as status,
       name_with_owner || case when (pull_request_templates <> '[]') then ' has a ' else ' has no ' end || 'pull request template.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -312,6 +323,7 @@ control "public_repo_readme_added" {
       end as status,
       r.name_with_owner || case when (p.readme is not null) then ' has a ' else ' has no ' end || 'README.' as reason,
       r.name_with_owner
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "r.")}
     from
       github_my_repository as r
       left join github_community_profile as p on r.name_with_owner = p.repository_full_name
@@ -335,6 +347,7 @@ control "public_repo_topics_set" {
       end as status,
       name_with_owner || ' has ' || repository_topics_total_count || ' topic(s).' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where
@@ -357,6 +370,7 @@ control "public_repo_website_set" {
       end as status,
       name_with_owner || ' homepage is ' || case when (homepage_url <> '') then homepage_url else 'not set' end || '.' as reason,
       name_with_owner
+      ${local.common_dimensions_sql}
     from
       github_my_repository
     where

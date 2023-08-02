@@ -4,20 +4,20 @@ locals {
   })
 }
 
-benchmark "org_best_practices" {
+benchmark "organization_best_practices" {
   title       = "Organization Best Practices"
   description = "Best practices for your organizations."
   children = [
-    control.org_all_seats_used,
-    control.org_default_repo_permissions_limited,
-    control.org_description_set,
-    control.org_domain_verified,
-    control.org_email_set,
-    control.org_homepage_set,
-    control.org_members_cannot_create_pages,
-    control.org_members_cannot_create_public_repos,
-    control.org_profile_pic_set,
-    control.org_two_factor_required
+    control.organization_all_seats_used,
+    control.organization_default_repo_permissions_limited,
+    control.organization_description_set,
+    control.organization_domain_verified,
+    control.organization_email_set,
+    control.organization_homepage_set,
+    control.organization_members_cannot_create_pages,
+    control.organization_members_cannot_create_public_repos,
+    control.organization_profile_pic_set,
+    control.organization_two_factor_required
   ]
 
   tags = merge(local.organization_best_practices_common_tags, {
@@ -25,7 +25,7 @@ benchmark "org_best_practices" {
   })
 }
 
-control "org_all_seats_used" {
+control "organization_all_seats_used" {
   title       = "All organization seats should be allocated"
   description = "Unused organization seats cost money and should be allocated or removed."
 
@@ -40,12 +40,13 @@ control "org_all_seats_used" {
       end as status,
       login || ' uses ' || plan_filled_seats || ' out of ' || plan_seats || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_default_repo_permissions_limited" {
+control "organization_default_repo_permissions_limited" {
   title       = "Organization default repository permissions should be limited"
   description = "Members of your organization should not have write or admin permissions by default in all repositories."
 
@@ -59,17 +60,18 @@ control "org_default_repo_permissions_limited" {
         when default_repo_permission in ('write', 'admin') then 'alarm'
         else 'ok'
       end as status,
-    case
-      when default_repo_permission is null then 'User do not have required permission to query ' || login || '.'
-      else login || ' default repository permissions are ' || default_repo_permission || '.'
-    end as reason,
+      case
+        when default_repo_permission is null then 'User do not have required permission to query ' || login || '.'
+        else login || ' default repository permissions are ' || default_repo_permission || '.'
+      end as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_description_set" {
+control "organization_description_set" {
   title       = "Organization description should be set"
   description = "Setting a description helps users learn more about your organization."
 
@@ -84,12 +86,13 @@ control "org_description_set" {
       end as status,
       coalesce(name, login) || ' description is ' || case when(description <> '') then description else 'not set' end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_domain_verified" {
+control "organization_domain_verified" {
   title       = "Domain should be verified in an organization"
   description = "Verifying your domain helps to confirm the organization's identity and send emails to users with verified emails."
 
@@ -104,12 +107,13 @@ control "org_domain_verified" {
       end as status,
       coalesce(name, login) || ' domain is ' || case when (is_verified)::bool then 'verified' else 'not verified' end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_email_set" {
+control "organization_email_set" {
   title       = "Organization email should be set"
   description = "Setting an email provides useful contact information for users."
 
@@ -125,12 +129,13 @@ control "org_email_set" {
       end as status,
       coalesce(name, login) || ' email is ' || case when (email is null) then 'not set' when (email = '') then 'not set' else email end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_homepage_set" {
+control "organization_homepage_set" {
   title       = "Organization homepage should be set"
   description = "Setting a homepage helps users learn more about your organization."
 
@@ -146,12 +151,13 @@ control "org_homepage_set" {
       end as status,
       coalesce(name, login) || ' homepage is ' || case when (website_url is null) then 'not set' when (website_url = '') then 'not set' else website_url end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_members_cannot_create_pages" {
+control "organization_members_cannot_create_pages" {
   title       = "Organization members should not be able to create pages"
   description = "Pages are public and may contain internal or sensitive information."
 
@@ -166,12 +172,13 @@ control "org_members_cannot_create_pages" {
       end as status,
       login || ' users ' || case when (members_can_create_pages)::bool then 'can ' else 'cannot ' end || 'create pages.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_members_cannot_create_public_repos" {
+control "organization_members_cannot_create_public_repos" {
   title       = "Organization members should not be able to create public repositories"
   description = "Accidentally creating a public repository can expose code and other assets."
 
@@ -186,12 +193,13 @@ control "org_members_cannot_create_public_repos" {
       end as status,
       login || ' users ' || case when (members_can_create_public_repos)::bool then 'can ' else 'cannot ' end || 'create public repositories.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_profile_pic_set" {
+control "organization_profile_pic_set" {
   title       = "Organization profile picture should be set"
   description = "Setting a profile picture helps users recognize your brand."
 
@@ -206,12 +214,13 @@ control "org_profile_pic_set" {
       end as status,
       coalesce(name, login) || ' profile picture URL is ' || case when(avatar_url <> '') then avatar_url else 'not set' end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT
 }
 
-control "org_two_factor_required" {
+control "organization_two_factor_required" {
   title       = "Two-factor authentication should be required for users in an organization"
   description = "Two-factor authentication makes it harder for unauthorized actors to access repositories and organizations."
 
@@ -232,6 +241,7 @@ control "org_two_factor_required" {
           else ' does not require 2FA'
         end || '.' as reason,
       login
+      ${local.common_dimensions_sql}
     from
       github_my_organization;
   EOT

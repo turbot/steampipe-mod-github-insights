@@ -35,6 +35,7 @@ control "issue_has_assignee" {
       end as status,
       '#' || i.number || ' ' || i.title || ' has ' || assignees_total_count || ' assignee(s).' as reason,
       i.repository_full_name
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "i.")}
     from
       github_my_repository as r
       left join github_issue as i on r.name_with_owner = i.repository_full_name
@@ -58,6 +59,7 @@ control "issue_has_labels" {
       end as status,
       '#' || i.number || ' ' || i.title || ' has ' || i.labels_total_count || ' label(s).' as reason,
       i.repository_full_name
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "i.")}
     from
       github_my_repository as r
       left join github_issue as i on r.name_with_owner = i.repository_full_name
@@ -82,6 +84,7 @@ control "issue_older_30_days" {
       '#' || i.number || ' ' || i.title || ' created ' || to_char(i.created_at , 'DD-Mon-YYYY') ||
         ' (' || extract(day from current_timestamp - i.created_at) || ' days).' as reason,
       i.repository_full_name
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "i.")}
     from
       github_my_repository as r
       left join github_issue as i on r.name_with_owner = i.repository_full_name
