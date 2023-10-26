@@ -14,9 +14,11 @@ mod "github_insights" {
   }
 
   require {
-    steampipe = "0.18.0"
+    steampipe {
+      min_version = "0.18.0"
+    }
     plugin "github" {
-      version = "0.29.0"
+      min_version = "0.29.0"
     }
   }
 }
