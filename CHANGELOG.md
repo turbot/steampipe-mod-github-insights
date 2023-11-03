@@ -1,3 +1,9 @@
+## v0.3 [2023-11-03]
+
+_Breaking changes_
+
+- Updated the plugin dependency section of the mod to use `min_version` instead of `version`. ([#18](https://github.com/turbot/steampipe-mod-github-insights/pull/18))
+
 ## v0.2 [2023-07-26]
 
 _Bug fixes_
