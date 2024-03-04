@@ -9,7 +9,7 @@ Create dashboards and reports for your GitHub repository resources using Powerpi
 
 ## Documentation
 
-- **[Dashboards →](https://hub.steampipe.io/mods/turbot/github_insights/dashboards)**
+- **[Dashboards →](https://hub.powerpipe.io/mods/turbot/github_insights/dashboards)**
 
 ## Overview
 
