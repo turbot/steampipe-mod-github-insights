@@ -18,7 +18,7 @@ Dashboards can help answer questions like:
 
 ## Documentation
 
-- **[Dashboards →](https://hub.steampipe.io/mods/turbot/github_insights/dashboards)**
+- **[Dashboards →](https://hub.powerpipe.io/mods/turbot/github_insights/dashboards)**
 
 ## Getting started
 
