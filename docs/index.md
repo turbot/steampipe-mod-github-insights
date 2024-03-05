@@ -2,14 +2,10 @@
 
 Create dashboards and reports for your GitHub repository resources using Powerpipe.
 
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/open_issue_age_report.png" width="50%" type="thumbnail"/>
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/org_security_advisory.png" width="50%" type="thumbnail"/>
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/repository_license_report.png" width="50%" type="thumbnail"/>
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/open_pr_age_report.png" width="50%" type="thumbnail"/>
-
-## Documentation
-
-- **[Dashboards →](https://hub.steampipe.io/mods/turbot/github_insights/dashboards)**
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/add-new-checks/docs/images/open_issue_age_report.png" width="50%" type="thumbnail"/>
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/add-new-checks/docs/images/org_security_advisory.png" width="50%" type="thumbnail"/>
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/add-new-checks/docs/images/repository_license_report.png" width="50%" type="thumbnail"/>
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/add-new-checks/docs/images/open_pr_age_report.png" width="50%" type="thumbnail"/>
 
 ## Overview
 
@@ -19,6 +15,10 @@ Dashboards can help answer questions like:
 - How many branches do I have?
 - What are the PRs in a repository?
 - What are the branch protections rules in a repository?
+
+## Documentation
+
+- **[Dashboards →](https://hub-powerpipe-io-git-development-turbot.vercel.app/mods/turbot/github_insights/dashboards)**
 
 ## Getting started
 
@@ -45,7 +45,7 @@ Finally, install the mod:
 mkdir dashboards
 cd dashboards
 powerpipe mod init
-powerpipe mod install github.com/turbot/powerpipe-mod-github-insights
+powerpipe mod install github.com/turbot/steampipe-mod-github-insights
 ```
 
 ### Browsing Dashboards
