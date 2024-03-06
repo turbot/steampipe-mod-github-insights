@@ -5,7 +5,7 @@
 
 A GitHub dashboarding tool that can be used to view dashboards and reports across all of your GitHub repositories.
 
-![image](https://hub-powerpipe-io-git-development-turbot.vercel.app/images/mods/turbot/github-insights-social-graphic.png)
+![image](https://hub.powerpipe.io/images/mods/turbot/github-insights-social-graphic.png)
 
 ## Overview
 
@@ -18,9 +18,9 @@ Dashboards can help answer questions like:
 
 ## Documentation
 
-- **[Dashboards →](https://hub-powerpipe-io-git-development-turbot.vercel.app/mods/turbot/github_insights/dashboards)**
+- **[Dashboards →](https://hub.powerpipe.io/mods/turbot/github_insights/dashboards)**
 
-## Getting started
+## Getting Started
 
 ### Installation
 
@@ -36,8 +36,6 @@ This mod also requires [Steampipe](https://steampipe.io) with the [GitHub plugin
 brew install turbot/tap/steampipe
 steampipe plugin install github
 ```
-
-This mod uses the credentials configured in the [Steampipe GitHub plugin](https://hub.steampipe.io/plugins/turbot/github#credentials).
 
 Finally, install the mod:
 

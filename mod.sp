@@ -1,7 +1,7 @@
 mod "github_insights" {
-  # hub metadata
+  # Hub metadata
   title         = "GitHub Insights"
-  description   = "Create dashboards and reports for your GitHub resources using Powerpipe."
+  description   = "Create dashboards and reports for your GitHub resources using Powerpipe and Steampipe."
   color         = "#191717"
   documentation = file("./docs/index.md")
   icon          = "/images/mods/turbot/github-insights.svg"
@@ -9,7 +9,7 @@ mod "github_insights" {
 
   opengraph {
     title       = "Powerpipe Mod for GitHub Insights"
-    description = "Create dashboards and reports for your GitHub resources using Powerpipe."
+    description = "Create dashboards and reports for your GitHub resources using Powerpipe and Steampipe."
     image       = "/images/mods/turbot/github-insights-social-graphic.png"
   }
 
