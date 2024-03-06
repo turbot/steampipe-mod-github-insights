@@ -3,7 +3,6 @@
 Create dashboards and reports for your GitHub repository resources using Powerpipe.
 
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/open_issue_age_report.png" width="50%" type="thumbnail"/>
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/org_security_advisory.png" width="50%" type="thumbnail"/>
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/repository_license_report.png" width="50%" type="thumbnail"/>
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-github-insights/main/docs/images/open_pr_age_report.png" width="50%" type="thumbnail"/>
 
