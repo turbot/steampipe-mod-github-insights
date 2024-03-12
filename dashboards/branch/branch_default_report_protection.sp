@@ -1,5 +1,5 @@
 dashboard "default_branch_protection_report" {
-  title = "GitHub Default Branch Protection Report"
+  title         = "GitHub Default Branch Protection Report"
   documentation = file("./dashboards/branch/docs/branch_default_report_protection.md")
 
   tags = merge(local.branch_common_tags, {
@@ -9,7 +9,7 @@ dashboard "default_branch_protection_report" {
 
   container {
     card {
-      query = query.repository_count
+      query = query.repo_count
       width = 3
     }
 
@@ -40,13 +40,41 @@ dashboard "default_branch_protection_report" {
   }
 }
 
-query "default_branch_protection_enabled_count" {
+query "repo_count" {
   sql = <<-EOQ
+    with my_repos as (
+      select
+        name_with_owner,
+        default_branch_ref,
+        url
+      from
+        github_my_repository
+    )
     select
       'Protected' as label,
       count(*) as value
     from
-      github_my_repository
+      my_repos
+    where
+      default_branch_ref -> 'branch_protection_rule' IS NOT NULL;
+  EOQ
+}
+
+query "default_branch_protection_enabled_count" {
+  sql = <<-EOQ
+    with my_repos AS (
+      select
+        name_with_owner,
+        default_branch_ref,
+        url
+      from
+        github_my_repository
+    )
+    select
+      'Protected' as label,
+      count(*) as value
+    from
+      my_repos
     where
       (default_branch_ref -> 'branch_protection_rule') is not null;
   EOQ
@@ -54,6 +82,14 @@ query "default_branch_protection_enabled_count" {
 
 query "default_branch_protection_disabled_unverifiable_count" {
   sql = <<-EOQ
+    with my_repos AS (
+      select
+        name_with_owner,
+        default_branch_ref,
+        url
+      from
+        github_my_repository
+    )
     select
       'Unknown' as label,
       count(*) as value,
@@ -62,7 +98,7 @@ query "default_branch_protection_disabled_unverifiable_count" {
         else 'ok'
       end as type
     from
-      github_my_repository
+      my_repos
     where
       (default_branch_ref -> 'branch_protection_rule') is null;
   EOQ
@@ -70,6 +106,14 @@ query "default_branch_protection_disabled_unverifiable_count" {
 
 query "default_branch_protection_table" {
   sql = <<-EOQ
+    with my_repos AS (
+      select
+        name_with_owner,
+        default_branch_ref,
+        url
+      from
+        github_my_repository
+    )
     select
       name_with_owner as "Repository",
       (default_branch_ref ->> 'name') as "Default Branch",
@@ -87,7 +131,7 @@ query "default_branch_protection_table" {
       (default_branch_ref -> 'branch_protection_rule' ->> 'is_admin_enforced')::bool as "Applies to Admins",
       url
     from
-      github_my_repository
+      my_repos
     order by
       name_with_owner;
   EOQ
