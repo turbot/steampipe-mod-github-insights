@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the `repository_weak_copyleft_license_count`, `repository_other_license_count` and `repository_license_table `queries to use the latest version of EUP (European Union Public License). ([#25](https://github.com/turbot/steampipe-mod-github-insights/pull/25))
+- Fixed the `repository_license_table`, `repository_other_license_count` and `repository_weak_copyleft_license_count` queries to use the latest version of EUP (European Union Public License 1.2). ([#25](https://github.com/turbot/steampipe-mod-github-insights/pull/25))
 
 ## v0.4 [2024-03-06]
 
