@@ -1,8 +1,14 @@
+## v0.5 [2024-03-20]
+
+_Bug fixes_
+
+- Fixed the `repository_weak_copyleft_license_count`, `repository_other_license_count` and `repository_license_table `queries to use the latest version of EUP (European Union Public License). ([#25](https://github.com/turbot/steampipe-mod-github-insights/pull/25))
+
 ## v0.4 [2024-03-06]
 
 _Powerpipe_
 
-[Powerpipe](https://powerpipe.io) is now the preferred way to run this mod!  [Migrating from Steampipe →](https://powerpipe.io/blog/migrating-from-steampipe)
+[Powerpipe](https://powerpipe.io) is now the preferred way to run this mod! [Migrating from Steampipe →](https://powerpipe.io/blog/migrating-from-steampipe)
 
 All v0.x versions of this mod will work in both Steampipe and Powerpipe, but v1.0.0 onwards will be in Powerpipe format only.
 
