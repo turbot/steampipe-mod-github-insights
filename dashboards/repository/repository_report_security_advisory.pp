@@ -8,10 +8,10 @@ dashboard "repository_security_advisory_report" {
   })
 
   container {
-    card {
-      query = query.repository_count
-      width = 2
-    }
+    # card {
+    #   query = query.repository_count
+    #   width = 2
+    # }
 
     card {
       query = query.repository_security_advisory_count
@@ -19,12 +19,7 @@ dashboard "repository_security_advisory_report" {
     }
 
     card {
-      query = query.repository_security_advisory_low_count
-      width = 2
-    }
-
-    card {
-      query = query.repository_security_advisory_medium_count
+      query = query.repository_security_advisory_critical_count
       width = 2
     }
 
@@ -34,7 +29,12 @@ dashboard "repository_security_advisory_report" {
     }
 
     card {
-      query = query.repository_security_advisory_critical_count
+      query = query.repository_security_advisory_medium_count
+      width = 2
+    }
+
+    card {
+      query = query.repository_security_advisory_low_count
       width = 2
     }
   }
@@ -76,7 +76,9 @@ query "repository_security_advisory_count" {
       github_my_repository r
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
-      a.state = 'open';
+      a.state = 'open'
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab');
   EOQ
 }
 
@@ -90,7 +92,9 @@ query "repository_security_advisory_low_count" {
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-      and a.security_advisory_severity = 'low';
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and a.security_advisory_severity = 'low'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab');
   EOQ
 }
 
@@ -108,7 +112,9 @@ query "repository_security_advisory_medium_count" {
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-      and a.security_advisory_severity = 'medium';
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and a.security_advisory_severity = 'medium'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab');
   EOQ
 }
 
@@ -126,7 +132,9 @@ query "repository_security_advisory_high_count" {
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-      and a.security_advisory_severity = 'high';
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and a.security_advisory_severity = 'high'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab');
   EOQ
 }
 
@@ -144,7 +152,9 @@ query "repository_security_advisory_critical_count" {
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
-      and a.security_advisory_severity = 'critical';
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and a.security_advisory_severity = 'critical'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab');
   EOQ
 }
 
@@ -173,6 +183,8 @@ query "repository_security_advisory_table" {
       join github_repository_dependabot_alert a on r.name_with_owner = a.repository_full_name
     where
       a.state = 'open'
+      and r.name_with_owner like 'turbot/steampipe-plugin%'
+      and r.name_with_owner not in ('turbot/steampipe-plugin-papertrail', 'turbot/steampipe-plugin-wordpress', 'turbot/steampipe-plugin-html', 'turbot/steampipe-plugin-chaos', 'turbot/steampipe-plugin-chaosratelimit', 'turbot/steampipe-plugin-chaosdynamic', 'turbot/steampipe-plugin-pokemon', 'turbot/steampipe-plugin-gitlab')
     order by
       weight;
   EOQ

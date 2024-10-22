@@ -173,6 +173,7 @@ query "organization_security_advisory_table" {
       join github_organization_dependabot_alert a on o.login = a.organization
     where
       a.state = 'open'
+      and login = 'turbot'
     order by
       weight;
   EOQ
